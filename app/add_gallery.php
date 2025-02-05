@@ -2,113 +2,104 @@
 include_once './include/header.php';
 include_once './class/fileUploader.php';
 error_reporting(1);
+if (isset($_REQUEST['submit'])) {
+    // Ensure the database connection is included
+
+    $d_id = $_REQUEST['id'] ?? 0;
+
+    // Image Upload Handling
+    if (isset($_FILES['gallery_image']) && is_uploaded_file($_FILES['gallery_image']["tmp_name"])) {
+        $uploadimage = new ImageUploader($DatabaseCo);
+        $upload_image = $uploadimage->upload($_FILES['gallery_image'], "gallery");
+
+        if (!empty($upload_image)) {
+            if ($d_id > 0) {
+                // Update existing image
+                $stmt = $DatabaseCo->dbLink->prepare("UPDATE `gallery` SET gallery_image=? WHERE index_id=?");
+                $stmt->bind_param("si", $upload_image, $d_id);
+                $stmt->execute();
+            } else {
+                // Insert new image
+                $stmt = $DatabaseCo->dbLink->prepare("INSERT INTO `gallery`(`gallery_image`) VALUES (?)");
+                $stmt->bind_param("s", $upload_image);
+                $stmt->execute();
+                $d_id = $stmt->insert_id;
+            }
+        }
+    }
+
+    // Redirect
+    header("location:gallery.php");
+    exit;
+}
 
 
 
-if ($_REQUEST['index_id'] > 0) {
-    $titl = "Update ";
-    $select = "SELECT * FROM gallery WHERE index_id ='" . $_REQUEST['index_id'] . "'"; //echo $select;
+
+
+
+if ($_REQUEST['id'] > 0) {
+    // $titl = "Update ";
+    $select = "SELECT * FROM gallery WHERE index_id='" . $_REQUEST['id'] . "'"; //echo $select;
     $SQL_STATEMENT = mysqli_query($DatabaseCo->dbLink, $select);
     $Row = mysqli_fetch_object($SQL_STATEMENT);
-  } else {
+} else {
     $titl = "";
-  }
-
-  
-  
-
-
-
+}
 ?>
 <div class="content-wrapper">
     <!-- Content -->
     <div class="container-xxl flex-grow-1 container-p-y">
-    <div class="row">
-
-        <div class=" mb-4">
-      
-            <div class="card-body">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <?php if (isset($_REQUEST['img'])): ?>
-                                <p class="card-title-desc">Unable to upload photo as the image size is >2MB.</p>
-                            <?php endif; ?>
-                            <p class="card-title-desc">Please fill the required gallery details.</p>
-                            <div class="alert" id="validationSummary" style="display:none;"></div>
-
-                            <form method="post" id="gallery-form" class="needs-validation" enctype="multipart/form-data">
-    <div id="basic-layout" class="pt-30 pl-30 pr-30 pb-30">
-        <div id="message-container" class="mb-3"></div> <!-- Alert messages -->
+  
+<div class="content-wrapper">
+    <!-- Content -->
+    <div class="container-xxl flex-grow-1 container-p-y">
 
         <div class="row">
-            <div class="mb-4">
-                <div class="card-header position-relative">
-                    <h6 class="fs-17 fw-semi-bold mb-0">Gallery</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row g-4">
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <label class="required fw-medium mb-2">Gallery</label>
-                                <input class="upload fileUp fileup-sm uploadlink" type="file" name="photos[]" id="photos" accept=".jpg, .png, image/jpeg, image/png" multiple >
-                                <div class="form-text">Recommended size: 350 x 350 px (png, jpg, jpeg).</div>
-                            </div>
-                            <?php if(empty($Row->photos)){?>
-                        <div class="gallery">
-        <!-- Images will be dynamically added here -->
-      
-    </div>
-    <?php
-  }else { ?>
-     <?php 
-$existingImages = array_filter(explode(',', $Row->photos)); // Remove empty entries
-foreach ($existingImages as $image) {
-    $imagePath = "uploads/gallery/" . htmlspecialchars($image);
-    // Check if the image file exists
-    if (trim($image) !== "" && file_exists($imagePath)) { 
-?>
-    <div class="image-container" id="image-<?= htmlspecialchars($image); ?>" style="display: inline-block; position: relative; margin: 5px;">
-        <img src="<?= $imagePath; ?>" alt="Existing Image" class="existing-image" style="width: 100px; height: 100px;">
-        <button class="remove" data-index="<?= $Row->index_id; ?>" data-name="<?= htmlspecialchars($image); ?>" 
-                style="position: absolute; top: 0; right: 0; background-color: red; color: white; border: none; cursor: pointer; padding: 3px 5px;">X</button>
-    </div>
-<?php 
-    }
-}
-?>
+            <div class="col-md-12">
+                <div class="card">
+                    <h5 class="card-header">Add Gallery</h5>
+                    <div class="card-body">
+                        <form action="" name="finish-form" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate="">
+                            <div class="row  p-3 ">
+                                
 
-    <?php };?>
-                        </div>
+                                <div class="col-6 ">
+                                    <div class="custom-file">
+                                        <label for="photos" class="form-label">Image</label>
+                                        <input class=" form-control fileUp fileup-sm uploadlink"
+                                            accept=".jpg, .png, image/jpeg, image/png"
+                                            name="gallery_image"
+                                            type="file"
+                                            id="photos" />
+                                        <label class="custom-file-label" for="photos" style="font-size: 13px;">
+                                            Recommended: 350 x 350 px (png, jpg, jpeg).
+                                        </label>
+                                    </div>
 
-                        <div class="col-sm-6">
-                            <div class="form-group">
-                                <label for="title"><b>Title</b></label>
-                                <input type="text" name="title" class="form-control" id="title" placeholder="Enter Title" value="<?php echo $Row->title ?? ''; ?>" required>
+                                </div>
+                         
+
+                                <div class="col-6">
+                                    <button type="submit" name="submit" class="btn btn-primary mt-5">Send</button>
+                                </div>
+
+
                             </div>
-                        </div>
+
+                        </form>
+
+
                     </div>
                 </div>
-
-                <div class="col-sm-12 text-center">
-                    <input type="hidden" name="index_id" id="index_id" value="<?php echo $Row->index_id ?? ''; ?>">
-                    <button type="submit" class="btn btn-primary" id="save">Submit</button>
-                </div>
             </div>
+
+
+
+
         </div>
     </div>
-</form>
-
-
-                        </div>
-                    </div>
-
-
-                </div>
-            </div>
-        </div>
-
-    </div>
+</div>
 </div>
 
 

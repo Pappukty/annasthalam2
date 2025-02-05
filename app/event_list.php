@@ -93,7 +93,12 @@ if (isset($_POST['delete_now'])) {
 </head>
 
 <div class="container-xxl flex-grow-1 container-p-y">
-    <h2 class="mb-3 text-center">Event List</h2>
+<div class="row">
+        <div class="col-6"><h3 class="mb-3 text-start">Event List</h3></div>
+        <div class="col-6">
+            <a href="event_list.php"> <div class="d-flex justify-content-end align-items-end"><button class="btn btn-primary d-flex justify-content-end align-items-end">+Add Gallery</button></div></div></a>
+           
+    </div>
 
     <!-- DataTable -->
     <table id="example" class="table table-striped table-bordered" style="width:100%">
