@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Donation Carousel</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        .carousel-container {
+            position: relative;
+            max-width: 100%;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .donation-carousel {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            width: 100%;
+        }
+
+        .donation-item {
+            flex: 0 0 33.3333%;  /* Default to 3 items per slide */
+            padding: 10px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .card-title {
+            font-size: 1.25em;
+            margin-bottom: 10px;
+        }
+
+        .card-text {
+            font-size: 1em;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Navigation buttons */
+        .prev, .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 2em;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .prev {
+            left: 10px;
+        }
+
+        .next {
+            right: 10px;
+        }
+
+        /* Media Queries for responsiveness */
+        @media (max-width: 1024px) {
+            .donation-item {
+                flex: 0 0 50%;  /* 2 items per slide on tablets */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .donation-item {
+                flex: 0 0 100%;  /* 1 item per slide on mobile */
+            }
+        }
+
+        /* Hover effect on the cards */
+        .card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="carousel-container">
+        <div class="donation-carousel">
+            <div class="donation-item">
+                <div class="card">
+                    <img src="./image/3.jpg" alt="Donation 1">
+                    <div class="card-body">
+                        <h5 class="card-title">Donation 1</h5>
+                        <p class="card-text">Help support this cause with your generous donation.</p>
+                        <a href="#" class="btn">Donate Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="donation-item">
+                <div class="card">
+                    <img src="./image/7.jpg" alt="Donation 2">
+                    <div class="card-body">
+                        <h5 class="card-title">Donation 2</h5>
+                        <p class="card-text">Contribute to a better tomorrow by donating today!</p>
+                        <a href="#" class="btn">Donate Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="donation-item">
+                <div class="card">
+                    <img src="./image/7.jpg" alt="Donation 2">
+                    <div class="card-body">
+                        <h5 class="card-title">Donation 2</h5>
+                        <p class="card-text">Contribute to a better tomorrow by donating today!</p>
+                        <a href="#" class="btn">Donate Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="donation-item">
+                <div class="card">
+                    <img src="./image/7.jpg" alt="Donation 2">
+                    <div class="card-body">
+                        <h5 class="card-title">Donation 2</h5>
+                        <p class="card-text">Contribute to a better tomorrow by donating today!</p>
+                        <a href="#" class="btn">Donate Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="prev" onclick="moveSlide(-1)">&#10094;</button>
+        <button class="next" onclick="moveSlide(1)">&#10095;</button>
+    </div>
+
+    <script>
+        let index = 0;
+
+        function moveSlide(step) {
+            const carousel = document.querySelector('.donation-carousel');
+            const totalItems = document.querySelectorAll('.donation-item').length;
+            index += step;
+
+            if (index < 0) index = totalItems - 1;
+            if (index >= totalItems) index = 0;
+
+            carousel.style.transform = `translateX(-${index * 33.3333}%)`;
+        }
+
+        // Loop through the carousel items on a timer (optional)
+        setInterval(function() {
+            moveSlide(1);
+        }, 5000);  // Change slide every 5 seconds
+    </script>
+
+</body>
+</html>

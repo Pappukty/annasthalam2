@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Responsive Carousel Gallery</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Swiper CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+    />
+
+    <!-- FancyBox CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css"
+    />
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+      }
+      .carousel-gallery {
+        margin-top: 50px;
+        overflow: hidden;
+      }
+      .swiper-container {
+        width: 100%;
+        overflow: hidden;
+      }
+      .swiper-wrapper {
+        display: flex;
+        transition: transform 0.3s ease;
+      }
+      .swiper-slide {
+        position: relative;
+        width: 100%;
+        flex: 0 0 auto;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      }
+      .image {
+        width: 100%;
+        height: 250px;
+        background-size: cover;
+        background-position: center;
+        transition: transform 0.3s ease;
+      }
+      .swiper-slide:hover .image {
+        transform: scale(1.05);
+      }
+      .swiper-pagination {
+        position: relative;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="title text-center my-5">
+        <h1 class="display-4 text-danger">Responsive Carousel Gallery</h1>
+      </div>
+
+      <div class="carousel-gallery">
+        <div class="swiper-container">
+          <div class="swiper-wrapper">
+            <!-- Example Image Slides -->
+            <div class="swiper-slide">
+              <a
+                href="https://images.pexels.com/photos/48794/boy-walking-teddy-bear-child-48794.jpeg"
+                data-fancybox="gallery"
+              >
+                <div
+                  class="image"
+                  style="
+                    background-image: url('https://images.pexels.com/photos/48794/boy-walking-teddy-bear-child-48794.jpeg');
+                  "
+                ></div>
+              </a>
+            </div>
+            <div class="swiper-slide">
+              <a
+                href="https://images.pexels.com/photos/1024389/pexels-photo-1024389.jpeg"
+                data-fancybox="gallery"
+              >
+                <div
+                  class="image"
+                  style="
+                    background-image: url('https://images.pexels.com/photos/1024389/pexels-photo-1024389.jpeg');
+                  "
+                ></div>
+              </a>
+            </div>
+            <div class="swiper-slide">
+              <a
+                href="https://images.pexels.com/photos/257360/pexels-photo-257360.jpeg"
+                data-fancybox="gallery"
+              >
+                <div
+                  class="image"
+                  style="
+                    background-image: url('https://images.pexels.com/photos/257360/pexels-photo-257360.jpeg');
+                  "
+                ></div>
+              </a>
+            </div>
+            <div class="swiper-slide">
+              <a
+                href="https://images.pexels.com/photos/35514/sunrise-lake-landscape-beautiful-35514.jpeg"
+                data-fancybox="gallery"
+              >
+                <div
+                  class="image"
+                  style="
+                    background-image: url('https://images.pexels.com/photos/35514/sunrise-lake-landscape-beautiful-35514.jpeg');
+                  "
+                ></div>
+              </a>
+            </div>
+            <div class="swiper-slide">
+              <a
+                href="https://images.pexels.com/photos/1424976/pexels-photo-1424976.jpeg"
+                data-fancybox="gallery"
+              >
+                <div
+                  class="image"
+                  style="
+                    background-image: url('https://images.pexels.com/photos/1424976/pexels-photo-1424976.jpeg');
+                  "
+                ></div>
+              </a>
+            </div>
+            <div class="swiper-slide">
+              <a
+                href="https://images.pexels.com/photos/1270285/pexels-photo-1270285.jpeg"
+                data-fancybox="gallery"
+              >
+                <div
+                  class="image"
+                  style="
+                    background-image: url('https://images.pexels.com/photos/1270285/pexels-photo-1270285.jpeg');
+                  "
+                ></div>
+              </a>
+            </div>
+            <div class="swiper-slide">
+              <a
+                href="https://images.pexels.com/photos/3104721/pexels-photo-3104721.jpeg"
+                data-fancybox="gallery"
+              >
+                <div
+                  class="image"
+                  style="
+                    background-image: url('https://images.pexels.com/photos/3104721/pexels-photo-3104721.jpeg');
+                  "
+                ></div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div class="swiper-pagination"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- jQuery and FancyBox JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        var swiper = new Swiper(".swiper-container", {
+          effect: "slide",
+          speed: 900,
+          slidesPerView: 7, // 7 images visible at once
+          spaceBetween: 10, // Adjust space between slides
+          loop: true, // Loop enabled
+          autoplay: {
+            delay: 5000,
+            disableOnInteraction: false,
+          },
+          pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+          },
+          breakpoints: {
+            320: { slidesPerView: 1, spaceBetween: 5 },
+            425: { slidesPerView: 2, spaceBetween: 10 },
+            768: { slidesPerView: 3, spaceBetween: 15 },
+            1024: { slidesPerView: 4, spaceBetween: 20 },
+            1280: { slidesPerView: 5, spaceBetween: 25 },
+            1600: { slidesPerView: 6, spaceBetween: 30 },
+            1920: { slidesPerView: 7, spaceBetween: 30 },
+          },
+        });
+
+        $('[data-fancybox="gallery"]').fancybox();
+      });
+    </script>
+  </body>
+</html>
