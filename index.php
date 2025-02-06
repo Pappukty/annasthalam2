@@ -789,41 +789,30 @@ echo "";
         <div class="swiper-container">
           <div class="swiper-wrapper">
             <!-- Example Image Slides -->
+            <?php
+            // Fetch all data from temples table with limit and offset
+            $select = "SELECT * FROM `gallery` ORDER BY index_id DESC";
+            $SQL_STATEMENT = mysqli_query($DatabaseCo->dbLink, $select);
+
+            // Check if any rows are returned
+            if (mysqli_num_rows($SQL_STATEMENT) > 0) {
+                while ($Row = mysqli_fetch_assoc($SQL_STATEMENT)) {
+                    $gallery_image = $Row['gallery_image'];
+                    // $title = $Row['title'];
+            ?>
             <div class="swiper-slide">
-              <a href="./image/imges01.jpg" data-fancybox="gallery">
-                <div class="image" style="background-image: url('./image/imges01.jpg');"></div>
+              <a href="./app/uploads/gallery/<?php echo $gallery_image; ?>" data-fancybox="gallery">
+                <div class="image" style="background-image: url('./app/uploads/gallery/<?php echo $gallery_image; ?>');"></div>
               </a>
             </div>
-            <div class="swiper-slide">
-              <a href="./image/event-1.JPG" data-fancybox="gallery">
-                <div class="image" style="background-image: url('./image/imges02.jpeg');"></div>
-              </a>
-            </div>
-            <div class="swiper-slide">
-              <a href="./image/imges05.jpeg" data-fancybox="gallery">
-                <div class="image" style="background-image: url('./image/imges05.jpeg');"></div>
-              </a>
-            </div>
-            <div class="swiper-slide">
-              <a href="./image/event-2.JPG" data-fancybox="gallery">
-                <div class="image" style="background-image: url('./image/imges06.jpg');"></div>
-              </a>
-            </div>
-            <div class="swiper-slide">
-              <a href="./image/imges10.jpg" data-fancybox="gallery">
-                <div class="image" style="background-image: url('./image/imges10.jpg');"></div>
-              </a>
-            </div>
-            <div class="swiper-slide">
-              <a href="./image/imges08.jpg" data-fancybox="gallery">
-                <div class="image" style="background-image: url('./image/imges07.jpeg');"></div>
-              </a>
-            </div>
-            <div class="swiper-slide">
-              <a href="./image/imges09.jpeg" data-fancybox="gallery">
-                <div class="image" style="background-image: url('./image/imges09.jpeg');"></div>
-              </a>
-            </div>
+                      <!-- End listing card -->
+                      <?php
+                }
+            } else {
+                echo "<p class='text-center'>No temples found.</p>";
+            }
+            ?>
+         
           </div>
 
           <!-- Pagination -->
@@ -944,6 +933,18 @@ donateButton.onclick = (event) => {
     donateButton.href = `donation.php?meal=${selectedMealPackage}&dates=${formattedDates}`;
     window.location.href = donateButton.href;
   } else {
+
+ 
+                    toastr.options = {
+                        closeButton: true,
+                        progressBar: true,
+                        showMethod: 'fadeIn', // A valid animation method
+                        hideMethod: 'fadeOut',
+                        timeOut: 5000, // Duration in milliseconds
+                    };
+
+                    toastr.error('Please select at least one future date for your donation.');
+          
     alert("Please select at least one future date for your donation.");
   }
 };

@@ -8,19 +8,19 @@ if (isset($_REQUEST['submit'])) {
     $d_id = $_REQUEST['id'] ?? 0;
 
     // Image Upload Handling
-    if (isset($_FILES['gallery_image']) && is_uploaded_file($_FILES['gallery_image']["tmp_name"])) {
+    if (isset($_FILES['image']) && is_uploaded_file($_FILES['image']["tmp_name"])) {
         $uploadimage = new ImageUploader($DatabaseCo);
-        $upload_image = $uploadimage->upload($_FILES['gallery_image'], "gallery");
+        $upload_image = $uploadimage->upload($_FILES['image'], "poster");
 
         if (!empty($upload_image)) {
             if ($d_id > 0) {
                 // Update existing image
-                $stmt = $DatabaseCo->dbLink->prepare("UPDATE `gallery` SET gallery_image=? WHERE index_id=?");
+                $stmt = $DatabaseCo->dbLink->prepare("UPDATE `poster` SET image=? WHERE index_id=?");
                 $stmt->bind_param("si", $upload_image, $d_id);
                 $stmt->execute();
             } else {
                 // Insert new image
-                $stmt = $DatabaseCo->dbLink->prepare("INSERT INTO `gallery`(`gallery_image`) VALUES (?)");
+                $stmt = $DatabaseCo->dbLink->prepare("INSERT INTO `poster`(`image`) VALUES (?)");
                 $stmt->bind_param("s", $upload_image);
                 $stmt->execute();
                 $d_id = $stmt->insert_id;
@@ -29,7 +29,7 @@ if (isset($_REQUEST['submit'])) {
     }
 
     // Redirect
-    header("location:gallery.php");
+    header("location:poster.php");
     exit;
 }
 
@@ -40,7 +40,7 @@ if (isset($_REQUEST['submit'])) {
 
 if ($_REQUEST['id'] > 0) {
     // $titl = "Update ";
-    $select = "SELECT * FROM gallery WHERE index_id='" . $_REQUEST['id'] . "'"; //echo $select;
+    $select = "SELECT * FROM poster WHERE index_id='" . $_REQUEST['id'] . "'"; //echo $select;
     $SQL_STATEMENT = mysqli_query($DatabaseCo->dbLink, $select);
     $Row = mysqli_fetch_object($SQL_STATEMENT);
 } else {
@@ -58,7 +58,7 @@ if ($_REQUEST['id'] > 0) {
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
-                    <h5 class="card-header">Add Gallery</h5>
+                    <h5 class="card-header">Add poster</h5>
                     <div class="card-body">
                         <form action="" name="finish-form" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate="">
                             <div class="row  p-3 ">
@@ -69,7 +69,7 @@ if ($_REQUEST['id'] > 0) {
                                         <label for="photos" class="form-label">Image</label>
                                         <input class=" form-control fileUp fileup-sm uploadlink"
                                             accept=".jpg, .png, image/jpeg, image/png"
-                                            name="gallery_image"
+                                            name="image"
                                             type="file"
                                             id="photos" />
                                         <label class="custom-file-label" for="photos" style="font-size: 13px;">
@@ -119,7 +119,7 @@ include_once './includes/footer.php';
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function () {
-    $('#gallery-form').on('submit', function (e) {
+    $('#poster-form').on('submit', function (e) {
         e.preventDefault(); // Prevent page reload on form submission
 
         // Determine action based on whether `index_id` has a value
@@ -130,7 +130,7 @@ $(document).ready(function () {
         formData.append('action', action);
 
         $.ajax({
-            url: 'gallery_process.php',
+            url: 'poster_process.php',
             type: 'POST',
             data: formData,
             contentType: false, // Needed to handle file upload
@@ -143,7 +143,7 @@ $(document).ready(function () {
 
                         // Redirect to another page after 2 seconds (adjust URL as needed)
                         setTimeout(() => {
-                            window.location.href = 'gallery_list.php'; // Change to your target page
+                            window.location.href = 'poster_list.php'; // Change to your target page
                         }, 2000);
                     } else {
                         showMessage('danger', res.message); // Show error message
@@ -174,14 +174,14 @@ $(document).ready(function () {
 </script>
 <script>
 $('.remove').click(function() {
-  // Get the data attributes to identify the image and gallery row
+  // Get the data attributes to identify the image and poster row
   var imageIndex = $(this).data('index'); // The row's index_id
   var nameIndex = $(this).data('name'); // The specific image name
 
   // Send AJAX request to the server to remove the specific image using POST
   $.ajax({
     type: "POST",
-    url: "remove_gallery.php", // Server endpoint to handle image removal
+    url: "remove_poster.php", // Server endpoint to handle image removal
     data: {
       imageIndex: imageIndex,
       nameIndex: nameIndex

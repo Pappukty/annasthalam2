@@ -4,6 +4,10 @@ require 'razorpay/Razorpay.php';
 
 use Razorpay\Api\Api;
 
+include_once './app/class/databaseConn.php';
+include_once './app/class/fileUploader.php';
+
+$DatabaseCo = new DatabaseConn();
 
 
 $keyId = "rzp_test_geqUM0Pl34yBo6";
@@ -12,10 +16,10 @@ $keySecret = "ar3OtUJd6ZRwDCvy5vWkcLI0";
 $api = new Api($keyId, $keySecret);
 
 $orderData = [
-    'receipt'         => rand(1000, 9999),
-    'amount'          => 100 * 100, // Amount in paise (100 INR)
-    'currency'        => 'INR',
-    'payment_capture' => 1
+  'receipt'         => rand(1000, 9999),
+  'amount'          => 100 * 100, // Amount in paise (100 INR)
+  'currency'        => 'INR',
+  'payment_capture' => 1
 ];
 
 
@@ -48,9 +52,19 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
   <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-  <!-- toster -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Swiper CSS -->
+
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet" />
+<!-- toster -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+  <!-- Swiper CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+
+  <!-- FancyBox CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css">
   <style>
     .hero {
       background: url('banner.jpg') no-repeat center center/cover;
@@ -358,45 +372,49 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
       /* Set padding for toast message */
     }
   </style>
-<!-- charousal  -->
-<style>
-        
-        .carousel-gallery {
-            margin-top: 50px;
-            overflow: hidden;
-        }
-        .swiper-container {
-            width: 100%;
-            overflow: hidden;
-        }
-        .swiper-wrapper {
-            display: flex;
-            transition: transform 0.3s ease;
-        }
-        .swiper-slide {
-            position: relative;
-            width: 100%;
-            flex: 0 0 auto;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-        }
-        .image {
-            width: 100%;
-            height: 250px;
-            background-size: cover;
-            background-position: center;
-            transition: transform 0.3s ease;
-        }
-        .swiper-slide:hover .image {
-            transform: scale(1.05);
-        }
-        .swiper-pagination {
-            position: relative;
-            margin-top: 20px;
-        }
-    </style>
-    <!-- carousal -->
- 
+  <!-- charousal  -->
+  <style>
+    .carousel-gallery {
+      margin-top: 50px;
+      overflow: hidden;
+    }
+
+    .swiper-container {
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .swiper-wrapper {
+      display: flex;
+      transition: transform 0.3s ease;
+    }
+
+    .swiper-slide {
+      position: relative;
+      width: 100%;
+      flex: 0 0 auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .image {
+      width: 100%;
+      height: 250px;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.3s ease;
+    }
+
+    .swiper-slide:hover .image {
+      transform: scale(1.05);
+    }
+
+    .swiper-pagination {
+      position: relative;
+      margin-top: 20px;
+    }
+  </style>
+
 </head>
 
 <body>
@@ -429,31 +447,31 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
 
         <!-- Stats Section -->
         <div class="row g-3 my-3 mt-3">
-  <div class="col-6 col-md-3 d-flex">
-    <div class="stats-box w-100 h-100 text-center">
-      <h3 class="stat-number" data-target="135">0</h3>
-      <p>Meals Donated</p>
-    </div>
-  </div>
-  <div class="col-6 col-md-3 d-flex">
-    <div class="stats-box w-100 h-100 text-center">
-      <h3 class="stat-number" data-target="19">0</h3>
-      <p>Supported Shelters</p>
-    </div>
-  </div>
-  <div class="col-6 col-md-3 d-flex">
-    <div class="stats-box w-100 h-100 text-center">
-      <h3 class="stat-number" data-target="90">0</h3>
-      <p>Helping Hands</p>  <!-- Changed from Volunteers -->
-    </div>
-  </div>
-  <div class="col-6 col-md-3 d-flex">
-    <div class="stats-box w-100 h-100 text-center">
-      <h3 class="stat-number" data-target="30">0</h3>
-      <p>Successful Campaigns</p>
-    </div>
-  </div>
-</div>
+          <div class="col-6 col-md-3 d-flex">
+            <div class="stats-box w-100 h-100 text-center">
+              <h3 class="stat-number" data-target="135">0</h3>
+              <p>Meals Donated</p>
+            </div>
+          </div>
+          <div class="col-6 col-md-3 d-flex">
+            <div class="stats-box w-100 h-100 text-center">
+              <h3 class="stat-number" data-target="19">0</h3>
+              <p>Supported Shelters</p>
+            </div>
+          </div>
+          <div class="col-6 col-md-3 d-flex">
+            <div class="stats-box w-100 h-100 text-center">
+              <h3 class="stat-number" data-target="90">0</h3>
+              <p>Helping Hands</p> <!-- Changed from Volunteers -->
+            </div>
+          </div>
+          <div class="col-6 col-md-3 d-flex">
+            <div class="stats-box w-100 h-100 text-center">
+              <h3 class="stat-number" data-target="30">0</h3>
+              <p>Successful Campaigns</p>
+            </div>
+          </div>
+        </div>
 
 
 
@@ -490,13 +508,13 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
               <div class="col-12 col-md-6">
                 <label for="donorEvent" class="form-label">Donor Event *</label>
                 <select class="form-select p-3" id="donorEvent" name="event" required>
-    <option value="">Select Event</option>
-    <option value="food_drive">Food Drive 2025</option>
-    <option value="winter_clothes">Winter Clothes Donation</option>
-    <option value="school_supplies">Back-to-School Supplies Campaign</option>
-    <option value="community_feeding">Community Feeding Program</option>
-    <option value="medical_aid">Medical Aid Fundraiser</option>
-</select>
+                  <option value="">Select Event</option>
+                  <option value="food_drive">Food Drive 2025</option>
+                  <option value="winter_clothes">Winter Clothes Donation</option>
+                  <option value="school_supplies">Back-to-School Supplies Campaign</option>
+                  <option value="community_feeding">Community Feeding Program</option>
+                  <option value="medical_aid">Medical Aid Fundraiser</option>
+                </select>
               </div>
 
               <!-- Email Address -->
@@ -516,22 +534,22 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
               <!-- Service Date -->
               <div class="col-12 col-md-6">
                 <label for="serviceDate" class="form-label">Service Date</label>
-                <input type="date" class="form-control py-3"id="service_date" name="service_date" value="<?php echo $date; ?>" id="serviceDate"  readonly>
+                <input type="date" class="form-control py-3" id="service_date" name="service_date" value="<?php echo $date; ?>" id="serviceDate" readonly>
               </div>
               <!-- Date of Birth -->
               <div class="col-12 col-md-6">
                 <label for="dob" class="form-label">Date of Birth</label>
-                <input type="date" class="form-control py-3"  name="dob" id="dob" required >
+                <input type="date" class="form-control py-3" name="dob" id="dob" required>
               </div>
 
               <!-- Food Count -->
               <div class="col-12 col-md-6">
-              <label for="meals_count" class="form-label">Meals Count</label>
-<select class="form-select p-3" id="mealsCount" name="meals_count" disabled>
-  <option value="50" <?php echo $meal == 1750 ? 'selected' : ''; ?>>50 Meals</option>
-  <option value="100" <?php echo $meal == 3700 ? 'selected' : ''; ?>>100 Meals</option>
-  <option value="150" <?php echo $meal == 5000 ? 'selected' : ''; ?>>150 Meals</option>
-</select>
+                <label for="meals_count" class="form-label">Meals Count</label>
+                <select class="form-select p-3" id="mealsCount" name="meals_count" disabled>
+                  <option value="50" <?php echo $meal == 1750 ? 'selected' : ''; ?>>50 Meals</option>
+                  <option value="100" <?php echo $meal == 3700 ? 'selected' : ''; ?>>100 Meals</option>
+                  <option value="150" <?php echo $meal == 5000 ? 'selected' : ''; ?>>150 Meals</option>
+                </select>
 
                 <!-- <input type="number" class="form-control py-3" name="meals_count" id="foodCount" placeholder="25"> -->
               </div>
@@ -549,7 +567,7 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
             </div>
 
             <div class="mt-4 text-center">
-            <button type="button" id="payWithRazorpay" class="btn btn-primary py-3 px-5">Pay with Razorpay</button>
+              <button type="button" id="payWithRazorpay" class="btn btn-primary py-3 px-5">Pay with Razorpay</button>
             </div>
           </form>
         </div>
@@ -619,24 +637,28 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
 
           <div class="container mt-5">
             <div class="owl-carousel owl-theme carousel-banner">
-              <div class="item">
-                <img src="./image/poster_banner_1.png" alt="Banner 1" class="img-fluid">
-              </div>
-              <div class="item">
-                <img src="./image/poster_banner_2.png" alt="Banner 2" class="img-fluid">
-              </div>
-              <div class="item">
-                <img src="./image/poster_banner_3.png" alt="Banner 3" class="img-fluid">
-              </div>
-              <div class="item">
-                <img src="./image/poster_banner_4.png" alt="Banner 4" class="img-fluid">
-              </div>
-              <div class="item">
-                <img src="./image/poster_banner_5.png" alt="Banner 5" class="img-fluid">
-              </div>
-              <div class="item">
-                <img src="./image/poster_banner_6.png" alt="Banner 6" class="img-fluid">
-              </div>
+              <?php
+              // Fetch all data from temples table with limit and offset
+              $select = "SELECT * FROM `poster` ORDER BY index_id DESC";
+              $SQL_STATEMENT = mysqli_query($DatabaseCo->dbLink, $select);
+
+              // Check if any rows are returned
+              if (mysqli_num_rows($SQL_STATEMENT) > 0) {
+                while ($Row = mysqli_fetch_assoc($SQL_STATEMENT)) {
+                  $image = $Row['image'];
+                  // $title = $Row['title'];
+              ?>
+                  <div class="item">
+                    <img src="./app/uploads/poster/<?php echo $image; ?>" alt="Banner 1" class="img-fluid">
+                  </div>
+                  <!-- End listing card -->
+              <?php
+                }
+              } else {
+                echo "<p class='text-center'>No temples found.</p>";
+              }
+              ?>
+
             </div>
           </div>
         </div>
@@ -646,65 +668,55 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
     </div>
   </div>
   </div>
-
+  </section>
   <section>
-    
-    <div class="container">
-          <!-- <div class="title text-center my-5">
-              <h1 class="display-4 text-danger">Responsive Carousel Gallery</h1>
-          </div> -->
-          
-          <div class="carousel-gallery">
-              <div class="swiper-container">
-                  <div class="swiper-wrapper">
-                      <!-- Example Image Slides -->
-                      <div class="swiper-slide">
-              <a href="./image/imges01.jpg" data-fancybox="gallery">
-                <div class="image" style="background-image: url('./image/imges01.jpg');"></div>
-              </a>
-            </div>
-            <div class="swiper-slide">
-              <a href="./image/imges02.jpeg" data-fancybox="gallery">
-                <div class="image" style="background-image: url('./image/imges02.jpeg');"></div>
-              </a>
-            </div>
-            <div class="swiper-slide">
-              <a href="./image/imges05.jpeg" data-fancybox="gallery">
-                <div class="image" style="background-image: url('./image/imges05.jpeg');"></div>
-              </a>
-            </div>
-            <div class="swiper-slide">
-              <a href="./image/imges06.jpg" data-fancybox="gallery">
-                <div class="image" style="background-image: url('./image/imges06.jpg');"></div>
-              </a>
-            </div>
-            <div class="swiper-slide">
-              <a href="./image/imges10.jpg" data-fancybox="gallery">
-                <div class="image" style="background-image: url('./image/imges10.jpg');"></div>
-              </a>
-            </div>
-            <div class="swiper-slide">
-              <a href="./image/imges08.jpg" data-fancybox="gallery">
-                <div class="image" style="background-image: url('./image/imges07.jpeg');"></div>
-              </a>
-            </div>
-            <div class="swiper-slide">
-              <a href="./image/imges09.jpeg" data-fancybox="gallery">
-                <div class="image" style="background-image: url('./image/imges09.jpeg');"></div>
-              </a>
-            </div>
-                  </div>
-                  
-                  <!-- Pagination -->
-                  <div class="swiper-pagination"></div>
-              </div>
-          </div>
+
+<div class="container mb-3">
+  <!-- <div class="title text-center my-5">
+        <h1 class="display-4 text-danger">Responsive Carousel Gallery</h1>
+    </div> -->
+
+  <div class="carousel-gallery">
+    <div class="swiper-container">
+      <div class="swiper-wrapper">
+        <!-- Example Image Slides -->
+        <?php
+        // Fetch all data from temples table with limit and offset
+        $select = "SELECT * FROM `gallery` ORDER BY index_id DESC";
+        $SQL_STATEMENT = mysqli_query($DatabaseCo->dbLink, $select);
+
+        // Check if any rows are returned
+        if (mysqli_num_rows($SQL_STATEMENT) > 0) {
+            while ($Row = mysqli_fetch_assoc($SQL_STATEMENT)) {
+                $gallery_image = $Row['gallery_image'];
+                // $title = $Row['title'];
+        ?>
+        <div class="swiper-slide">
+          <a href="./app/uploads/gallery/<?php echo $gallery_image; ?>" data-fancybox="gallery">
+            <div class="image" style="background-image: url('./app/uploads/gallery/<?php echo $gallery_image; ?>');"></div>
+          </a>
+        </div>
+                  <!-- End listing card -->
+                  <?php
+            }
+        } else {
+            echo "<p class='text-center'>No temples found.</p>";
+        }
+        ?>
+     
       </div>
-    </section>
-  <!-- Toastr JS -->
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-  <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+
+      <!-- Pagination -->
+      <div class="swiper-pagination"></div>
+    </div>
+  </div>
+</div>
+</section>
+  <footer class="bg-dark text-white text-center py-3">
+    <p>&copy; 2025 Donation Page. All rights reserved.</p>
+  </footer>
+
+
   <script>
     $(document).ready(function() {
       $("#donationForm").submit(function(e) {
@@ -827,113 +839,163 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
       });
     });
   </script>
-  
- <!-- Razorpay JS -->
-<!-- Razorpay SDK -->
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<?php
-$razorpayKey = "rzp_test_geqUM0Pl34yBo6"; // Replace with your Razorpay key
-?>
 
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <!-- Razorpay JS -->
 
-<script>
-document.getElementById("payWithRazorpay").addEventListener("click", function () {
-    var name = document.getElementById("donorName").value;
-    var email = document.getElementById("emailAddress").value;
-    var phone = document.getElementById("phone").value;
-    var amount = document.getElementById("donationAmount").value * 100; // Convert to paise
-    var event = document.getElementById("donorEvent").value;
-    var serviceDate = document.getElementById("service_date").value;
-    var dob = document.getElementById("dob").value;
-    var mealsCount = document.getElementById("mealsCount").value;
-    var comments = document.getElementById("comments").value;
+  <?php
+  $razorpayKey = "rzp_test_geqUM0Pl34yBo6"; // Replace with your Razorpay key
+  ?>
 
-    if (!name || !email || !phone || !amount) {
-        alert("Please fill all required fields!");
+
+
+  <script>
+    document.getElementById("payWithRazorpay").addEventListener("click", function() {
+      var name = document.getElementById("donorName").value;
+      var email = document.getElementById("emailAddress").value;
+      var phone = document.getElementById("phone").value;
+      var amount = document.getElementById("donationAmount").value * 100; // Convert to paise
+      var event = document.getElementById("donorEvent").value;
+      var serviceDate = document.getElementById("service_date").value;
+      var dob = document.getElementById("dob").value;
+      var mealsCount = document.getElementById("mealsCount").value;
+      var comments = document.getElementById("comments").value;
+
+      if (!name || !email || !phone || !amount) {
+        toastr.options = {
+            closeButton: true,
+            progressBar: true,
+            showMethod: 'fadeIn', // A valid animation method
+            hideMethod: 'fadeOut',
+            timeOut: 5000, // 5 seconds duration
+          };
+
+          toastr.error('Please fill all required fields!');
+        // alert("Please fill all required fields!");
         return;
-    }
+      }
 
-    var options = {
+      var options = {
         "key": "<?php echo $razorpayKey; ?>",
         "amount": amount,
         "currency": "INR",
         "name": "Annasthalam",
         "description": "Donation to Charity",
-        "image": "https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/razorpay-icon.png",
-        "handler": function (response) {
+        "image": "./image/logo.jpg",
+        "handler": function(response) {
           console.log(response);
-            savePayment(response, name, email, phone, amount / 100, event, serviceDate, dob, mealsCount, comments);
+          savePayment(response, name, email, phone, amount / 100, event, serviceDate, dob, mealsCount, comments);
         },
         "prefill": {
-            "name": name,
-            "email": email,
-            "contact": phone
+          "name": name,
+          "email": email,
+          "contact": phone
         },
         "theme": {
-            "color": "#3399cc"
+          "color": "#3399cc"
         }
-    };
+      };
 
-    var rzp = new Razorpay(options);
-    rzp.open();
-});
+      var rzp = new Razorpay(options);
+      rzp.open();
+    });
 
-function savePayment(response, name, email, phone, amount, event, serviceDate, dob, mealsCount, comments) {
-    var xhr = new XMLHttpRequest();
-    console.log(response);
-    xhr.open("POST", "donation_process.php", true);
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.onreadystatechange = function () {
+    function savePayment(response, name, email, phone, amount, event, serviceDate, dob, mealsCount, comments) {
+      var xhr = new XMLHttpRequest();
+      console.log(response);
+      xhr.open("POST", "donation_process.php", true);
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
-            alert("Payment successful! Your transaction ID: " + response.razorpay_payment_id);
+
+          toastr.options = {
+            closeButton: true,
+            progressBar: true,
+            showMethod: 'fadeIn', // A valid animation method
+            hideMethod: 'fadeOut',
+            timeOut: 5000, // 5 seconds duration
+          };
+
+          toastr.success('Payment successful!');
+
+          // Delay reload until toast fully disappears
+          setTimeout(function() {
             location.reload();
+          }, 5000); // Wait 5 seconds before reloading
         }
-    };
-    xhr.send("payment_id=" + response.razorpay_payment_id + "&name=" + name + "&email=" + email + "&phone=" + phone + "&amount=" + amount + "&event=" + event + "&service_date=" + serviceDate + "&dob=" + dob + "&meals_count=" + mealsCount + "&comments=" + comments);
-}
-</script>
-<!-- charousal  -->
+      };
+      xhr.send("payment_id=" + response.razorpay_payment_id + "&name=" + name + "&email=" + email + "&phone=" + phone + "&amount=" + amount + "&event=" + event + "&service_date=" + serviceDate + "&dob=" + dob + "&meals_count=" + mealsCount + "&comments=" + comments);
+    }
+  </script>
 
-    <!-- Swiper JS -->
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    
-    <!-- jQuery and FancyBox JS -->
-    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            var swiper = new Swiper('.swiper-container', {
-                effect: 'slide',
-                speed: 900,
-                slidesPerView: 7,  // 7 images visible at once
-                spaceBetween: 10, // Adjust space between slides
-                loop: true,  // Loop enabled
-                autoplay: {
-                    delay: 5000,
-                    disableOnInteraction: false
-                },
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true
-                },
-                breakpoints: {
-                    320: { slidesPerView: 1, spaceBetween: 5 },
-                    425: { slidesPerView: 2, spaceBetween: 10 },
-                    768: { slidesPerView: 3, spaceBetween: 15 },
-                    1024: { slidesPerView: 4, spaceBetween: 20 },
-                    1280: { slidesPerView: 5, spaceBetween: 25 },
-                    1600: { slidesPerView: 6, spaceBetween: 30 },
-                    1920: { slidesPerView: 7, spaceBetween: 30 }
-                }
-            });
-            
-            $('[data-fancybox="gallery"]').fancybox();
-        });
-    </script>
-   
 
-    
+
+
+  
+  <script>
+    $(document).ready(function() {
+      var swiper = new Swiper('.swiper-container', {
+        effect: 'slide',
+        speed: 900,
+        slidesPerView: 7, // 7 images visible at once
+        spaceBetween: 10, // Adjust space between slides
+        loop: true, // Loop enabled
+        autoplay: {
+          delay: 5000,
+          disableOnInteraction: false
+        },
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true
+        },
+        breakpoints: {
+          320: {
+            slidesPerView: 1,
+            spaceBetween: 5
+          },
+          425: {
+            slidesPerView: 2,
+            spaceBetween: 10
+          },
+          768: {
+            slidesPerView: 3,
+            spaceBetween: 15
+          },
+          1024: {
+            slidesPerView: 4,
+            spaceBetween: 20
+          },
+          1280: {
+            slidesPerView: 5,
+            spaceBetween: 25
+          },
+          1600: {
+            slidesPerView: 6,
+            spaceBetween: 30
+          },
+          1920: {
+            slidesPerView: 7,
+            spaceBetween: 30
+          }
+        }
+      });
+
+      $('[data-fancybox="gallery"]').fancybox();
+    });
+  </script>
+
+
+
+
+    <!-- Razorpay SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<!-- jQuery and FancyBox JS -->
+<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+<!-- toaster -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

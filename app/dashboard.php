@@ -1,6 +1,44 @@
-<?php ob_start();
+<?php
 include_once './include/header.php';
 
+
+// Get Total Donations (All Time)
+$total_query = $DatabaseCo->dbLink->query("SELECT COUNT(index_id) FROM donation");
+$total_donors = $total_query->fetch_array()[0] ?? 0;
+
+// Get Today's Donations
+$today_query = $DatabaseCo->dbLink->query("SELECT COUNT(index_id) FROM donation WHERE DATE(created_at) = CURDATE()");
+$today_donations = $today_query->fetch_array()[0] ?? 0;
+
+// Get Yesterday's Donations
+$yesterday_query = $DatabaseCo->dbLink->query("SELECT COUNT(index_id) FROM donation WHERE DATE(created_at) = CURDATE() - INTERVAL 1 DAY");
+$yesterday_donations = $yesterday_query->fetch_array()[0] ?? 0;
+
+// Get Previous Total Donations (Before Today)
+$previous_total_query = $DatabaseCo->dbLink->query("SELECT COUNT(index_id) FROM donation WHERE DATE(created_at) < CURDATE()");
+$previous_total_donors = $previous_total_query->fetch_array()[0] ?? 0;
+
+// Calculate Today's Donation Percentage Change
+if ($yesterday_donations > 0) {
+  $percentage_change_today = (($today_donations - $yesterday_donations) / $yesterday_donations) * 100;
+} else {
+  $percentage_change_today = 0; // Avoid division by zero
+}
+
+// Calculate Total Donation Percentage Change
+if ($previous_total_donors > 0) {
+  $percentage_change_total = (($total_donors - $previous_total_donors) / $previous_total_donors) * 100;
+} else {
+  $percentage_change_total = 0; // Avoid division by zero
+}
+
+// Determine Increase or Decrease for Today
+$arrow_class_today = $percentage_change_today >= 0 ? 'bx-up-arrow-alt text-success' : 'bx-down-arrow-alt text-danger';
+$percentage_change_display_today = number_format(abs($percentage_change_today), 2) . '%';
+
+// Determine Increase or Decrease for Total
+$arrow_class_total = $percentage_change_total >= 0 ? 'bx-up-arrow-alt text-success' : 'bx-down-arrow-alt text-danger';
+$percentage_change_display_total = number_format(abs($percentage_change_total), 2) . '%';
 
 ?>
 <!-- Content -->
@@ -46,22 +84,13 @@ include_once './include/header.php';
       <div class="row">
         <div class="col-lg-6 col-md-12 col-6 mb-6">
           <div class="card h-100">
-            <div class="card-body">
+                <div class="card-body">
               <div class="card-title d-flex align-items-start justify-content-between mb-4">
                 <div class="avatar flex-shrink-0">
-                  <img
-                    src="./assets/img/icons/unicons/chart-success.png"
-                    alt="chart success"
-                    class="rounded" />
+                  <img src="./assets/img/icons/unicons/chart-success.png" alt="chart success" class="rounded" />
                 </div>
                 <div class="dropdown">
-                  <button
-                    class="btn p-0"
-                    type="button"
-                    id="cardOpt3"
-                    data-bs-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false">
+                  <button class="btn p-0" type="button" id="cardOpt3" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="bx bx-dots-vertical-rounded text-muted"></i>
                   </button>
                   <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt3">
@@ -70,9 +99,17 @@ include_once './include/header.php';
                   </div>
                 </div>
               </div>
-              <p class="mb-1">Donor</p>
-              <h4 class="card-title mb-3">578</h4>
-              <small class="text-success fw-medium"><i class="bx bx-up-arrow-alt"></i> +72.80%</small>
+
+              <!-- Total Donors -->
+              <p class="mb-1">Total Donors</p>
+              <h4 class="card-title mb-3"><?php echo $total_donors; ?></h4>
+              <small class="fw-medium">
+                <i class="bx <?php echo $arrow_class_total; ?>"></i> <?php echo $percentage_change_display_total; ?> Total
+              </small>
+
+          
+
+      
             </div>
           </div>
         </div>
@@ -103,8 +140,8 @@ include_once './include/header.php';
                 </div>
               </div>
               <p class="mb-1">Today Donation</p>
-              <h4 class="card-title mb-3">265</h4>
-              <small class="text-success fw-medium"><i class="bx bx-up-arrow-alt"></i> +28.42%</small>
+              <h4 class="card-title mb-3"><?php echo $today_donations; ?></h4>
+              <small class="text-success fw-medium"><i class="bx bx-up-arrow-alt"></i> <?php echo $percentage_change_display_today; ?></small>
             </div>
           </div>
         </div>

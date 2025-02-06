@@ -288,12 +288,35 @@ if (!empty($_SESSION['admin_id'])) {
               </li>
               <li class="menu-item">
                 <a
-                  href="event_list.php"
+                  href="gallery.php"
                   target="_blank"
                   class="menu-link">Gallery List</a>
               </li>
             </ul>
           </li>
+          <li class="menu-item">
+          <a href="javascript:void(0);" class="menu-link menu-toggle">
+          <i class="menu-icon tf-icons bx bx-image"></i> Poster
+</a>
+
+
+
+            <ul class="menu-sub">
+              <li class="menu-item">
+                <a
+                  href="add_poster.php"
+                  target="_blank"
+                  class="menu-link">Poster Add</a>
+              </li>
+              <li class="menu-item">
+                <a
+                  href="poster.php"
+                  target="_blank"
+                  class="menu-link">Poster List</a>
+              </li>
+            </ul>
+          </li>
+
 
 
 
@@ -322,7 +345,7 @@ if (!empty($_SESSION['admin_id'])) {
 
           </li>
           <li class="menu-item">
-            <a href="logout.html" class="menu-link">
+            <a href="logout.php" title="Logout" class="menu-link">
               <i class="bx bx-log-out bx-md me-3"></i> Log Out
             </a>
           </li>
@@ -423,7 +446,7 @@ if (!empty($_SESSION['admin_id'])) {
                     <div class="dropdown-divider my-1"></div>
                   </li>
                   <li>
-                    <a class="dropdown-item" href="javascript:void(0);">
+                    <a class="dropdown-item" href="logout.php" title="Logout" class="dropdown-item">
                       <i class="bx bx-power-off bx-md me-3"></i><span>Log Out</span>
                     </a>
                   </li>

@@ -7,7 +7,7 @@ if (isset($_POST['delete_now'])) {
     $itemId = $_POST['del_t'];
 
     // SQL Query to delete the item
-    $query = "DELETE FROM gallery WHERE index_id = ?";
+    $query = "DELETE FROM poster WHERE index_id = ?";
     $stmt = $DatabaseCo->dbLink->prepare($query);
 
     // Bind the parameter
@@ -16,7 +16,7 @@ if (isset($_POST['delete_now'])) {
     // Execute the query
     if ($stmt->execute()) {
         // Redirect after successful deletion (Optional: You can set a success message)
-        header("Location: gallery.php");
+        header("Location: poster.php");
     } else {
         // Error message if something went wrong
         echo "Error: " . $stmt->error;
@@ -94,9 +94,9 @@ if (isset($_POST['delete_now'])) {
 
 <div class="container-xxl flex-grow-1 container-p-y">
     <div class="row">
-        <div class="col-6"><h3 class="mb-3 text-start">Gallery List</h3></div>
+        <div class="col-6"><h3 class="mb-3 text-start">poster List</h3></div>
         <div class="col-6">
-            <a href="add_gallery.php"> <div class="d-flex justify-content-end align-items-end"><button class="btn btn-primary d-flex justify-content-end align-items-end">+Add Gallery</button></div></div></a>
+            <a href="add_poster.php"> <div class="d-flex justify-content-end align-items-end"><button class="btn btn-primary d-flex justify-content-end align-items-end">+Add poster</button></div></div></a>
            
     </div>
     
@@ -113,7 +113,7 @@ if (isset($_POST['delete_now'])) {
             </tr>
         </thead>
         <tbody>
-            <?php $select = "SELECT * FROM `gallery` WHERE index_id!='0' ORDER BY index_id DESC";
+            <?php $select = "SELECT * FROM `poster` WHERE index_id!='0' ORDER BY index_id DESC";
             $SQL_STATEMENT = mysqli_query($DatabaseCo->dbLink, $select);
             $num_rows = mysqli_num_rows($SQL_STATEMENT);
             if ($num_rows != 0) {
@@ -128,8 +128,8 @@ if (isset($_POST['delete_now'])) {
                             $i++; ?></td>
 
                         <td>
-                            <?php if ($Row->gallery_image != '') { ?>
-                                <a href="./uploads/gallery/<?php echo $Row->gallery_image; ?>" target="_blank"><img src="./uploads/gallery/<?php echo $Row->gallery_image; ?>" class=" header-profile-user" width="60" alt="" data-demo-src="./uploads/gallery/<?php echo $Row->gallery_image; ?>"></a>
+                            <?php if ($Row->image != '') { ?>
+                                <a href="./uploads/poster/<?php echo $Row->image; ?>" target="_blank"><img src="./uploads/poster/<?php echo $Row->image; ?>" class=" header-profile-user" width="60" alt="" data-demo-src="./uploads/poster/<?php echo $Row->image; ?>"></a>
                             <?php } ?>
                         </td>
 
@@ -158,16 +158,16 @@ if (isset($_POST['delete_now'])) {
     </table>
 </div>
 <div id="delete-board-alert" class="modal fade alert-box" tabindex="-1" role="dialog" aria-hidden="true">
-    <form action="gallery.php" method="post" name="delete_form" id="delete_form">
+    <form action="poster.php" method="post" name="delete_form" id="delete_form">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="header-title">Delete Gallery Image</h5>
+                    <h5 class="header-title">Delete poster Image</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" align="center">
-                    <h5 class="text-center">Delete Gallery Image ?</h5>
-                    <p>Are you sure you want to delete this Gallery Image? All data will be lost.</p>
+                    <h5 class="text-center">Delete poster Image ?</h5>
+                    <p>Are you sure you want to delete this poster Image? All data will be lost.</p>
                 </div>
                 <div class="modal-footer">
                     <input type="hidden" name="form_action" value="Delete" />
