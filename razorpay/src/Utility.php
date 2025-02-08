@@ -8,60 +8,32 @@ class Utility
 
     public function verifyPaymentSignature($attributes)
     {
-        $actualSignature = $attributes['razorpay_signature'];
-
+        $expectedSignature = $attributes['razorpay_signature'];
+        $orderId = $attributes['razorpay_order_id'];
         $paymentId = $attributes['razorpay_payment_id'];
 
-        if (isset($attributes['razorpay_order_id']) === true)
-        {
-            $orderId = $attributes['razorpay_order_id'];
+        $payload = $orderId . '|' . $paymentId;
 
-            $payload = $orderId . '|' . $paymentId;
-        }
-        else if (isset($attributes['razorpay_subscription_id']) === true)
-        {
-            $subscriptionId = $attributes['razorpay_subscription_id'];
-
-            $payload = $paymentId . '|' . $subscriptionId;
-        }
-        else if (isset($attributes['razorpay_payment_link_id']) === true)
-        {
-            $paymentLinkId     = $attributes['razorpay_payment_link_id'];
-
-            $paymentLinkRefId  = $attributes['razorpay_payment_link_reference_id'];
-
-            $paymentLinkStatus = $attributes['razorpay_payment_link_status'];
-
-            $payload = $paymentLinkId . '|'. $paymentLinkRefId . '|' . $paymentLinkStatus . '|' . $paymentId;
-        }
-        else
-        {
-            throw new Errors\SignatureVerificationError(
-                'Either razorpay_order_id or razorpay_subscription_id or razorpay_payment_link_id must be present.');
-        }
-
-        $secret = Api::getSecret();
-
-        self::verifySignature($payload, $actualSignature, $secret);
+        return self::verifySignature($payload, $expectedSignature);
     }
 
-    public function verifyWebhookSignature($payload, $actualSignature, $secret)
+    public function verifyWebhookSignature($payload, $expectedSignature)
     {
-        self::verifySignature($payload, $actualSignature, $secret);
+        return self::verifySignature($payload, $expectedSignature);
     }
 
-    public function verifySignature($payload, $actualSignature, $secret)
+    public function verifySignature($payload, $expectedSignature)
     {
-        $expectedSignature = hash_hmac(self::SHA256, $payload, $secret);
+        $actualSignature = hash_hmac(self::SHA256, $payload, Api::getSecret());
 
         // Use lang's built-in hash_equals if exists to mitigate timing attacks
         if (function_exists('hash_equals'))
         {
-            $verified = hash_equals($expectedSignature, $actualSignature);
+            $verified = hash_equals($actualSignature, $expectedSignature);
         }
         else
         {
-            $verified = $this->hashEquals($expectedSignature, $actualSignature);
+            $verified = $this->hashEquals($actualSignature, $expectedSignature);
         }
 
         if ($verified === false)
@@ -71,7 +43,7 @@ class Utility
         }
     }
 
-    private function hashEquals($expectedSignature, $actualSignature)
+    private function hashEquals($actualSignature, $expectedSignature)
     {
         if (strlen($expectedSignature) === strlen($actualSignature))
         {

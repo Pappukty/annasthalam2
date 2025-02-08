@@ -785,7 +785,7 @@ echo "";
             <h1 class="display-4 text-danger">Responsive Carousel Gallery</h1>
         </div> -->
 
-      <div class="carousel-gallery">
+      <div class="carousel-gallery mb-3">
         <div class="swiper-container">
           <div class="swiper-wrapper">
             <!-- Example Image Slides -->
@@ -828,132 +828,130 @@ echo "";
 
 
   <script>
-const calendar = document.getElementById("calendar");
-const monthYear = document.getElementById("monthYear");
-const prevMonth = document.getElementById("prevMonth");
-const nextMonth = document.getElementById("nextMonth");
-const mealOptions = document.getElementById("meal-options");
-const donateButton = document.getElementById("donate-button");
+        const calendar = document.getElementById("calendar");
+        const monthYear = document.getElementById("monthYear");
+        const prevMonth = document.getElementById("prevMonth");
+        const nextMonth = document.getElementById("nextMonth");
+        const mealOptions = document.getElementById("meal-options");
+        const donateButton = document.getElementById("donate-button");
 
-let currentDate = new Date(); // Track the current displayed month
-let selectedDates = new Set(); // Store selected dates
-let selectedMealPackage = mealOptions.value; // Track selected meal package
+        let currentDate = new Date(); // Track the current displayed month
+        let selectedDates = new Set(); // Store selected dates
+        let selectedMealPackage = mealOptions.value; // Track selected meal package
 
-// Function to format date as YYYY-MM-DD
-function formatDate(date) {
-  return date.toISOString().split("T")[0]; // Standardized format
-}
-
-// Function to render the calendar dynamically (NO PAGE RELOAD)
-function renderCalendar() {
-  calendar.innerHTML = ""; // Clear previous calendar
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  
-  monthYear.textContent = new Intl.DateTimeFormat("en-US", {
-    month: "long",
-    year: "numeric"
-  }).format(currentDate);
-
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Reset time to avoid timezone issues
-
-  // Add empty divs for padding (days from the previous month)
-  for (let i = 0; i < firstDay; i++) {
-    const emptyDiv = document.createElement("div");
-    calendar.appendChild(emptyDiv);
-  }
-
-  // Loop through the days of the month
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dayDiv = document.createElement("div");
-    dayDiv.classList.add("day");
-    dayDiv.textContent = day;
-
-    const dayDate = new Date(year, month, day);
-    dayDate.setHours(0, 0, 0, 0);
-    const dateKey = formatDate(dayDate);
-
-    // Highlight today's date
-    if (dateKey === formatDate(today)) {
-      dayDiv.classList.add("today");
-    }
-
-    // Disable past dates
-    if (dayDate < today) {
-      dayDiv.classList.add("disabled");
-    } else {
-      // Click to select/deselect dates
-      dayDiv.onclick = () => {
-        if (selectedDates.has(dateKey)) {
-          selectedDates.delete(dateKey);
-          dayDiv.classList.remove("selected");
-        } else {
-          selectedDates.add(dateKey);
-          dayDiv.classList.add("selected");
+        // ✅ FIXED: Function to format date correctly (no timezone shift issue)
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0"); // Ensure two-digit month
+            const day = String(date.getDate()).padStart(2, "0"); // Ensure two-digit day
+            return `${year}-${month}-${day}`;
         }
-      };
-    }
 
-    // Highlight previously selected dates
-    if (selectedDates.has(dateKey)) {
-      dayDiv.classList.add("selected");
-    }
+        // Function to render the calendar dynamically (NO PAGE RELOAD)
+        function renderCalendar() {
+            calendar.innerHTML = ""; // Clear previous calendar
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            monthYear.textContent = new Intl.DateTimeFormat("en-US", {
+                month: "long",
+                year: "numeric"
+            }).format(currentDate);
 
-    calendar.appendChild(dayDiv);
-  }
-}
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-// Handle month navigation WITHOUT RELOAD
-prevMonth.addEventListener("click", (event) => {
-  event.preventDefault(); // Prevent page reload
-  currentDate.setMonth(currentDate.getMonth() - 1);
-  renderCalendar();
-});
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Reset time to avoid timezone issues
 
-nextMonth.addEventListener("click", (event) => {
-  event.preventDefault(); // Prevent page reload
-  currentDate.setMonth(currentDate.getMonth() + 1);
-  renderCalendar();
-});
+            // Add empty divs for padding (days from the previous month)
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDiv = document.createElement("div");
+                calendar.appendChild(emptyDiv);
+            }
 
-// Update meal selection
-mealOptions.onchange = () => {
-  selectedMealPackage = mealOptions.value;
-};
+            // Loop through the days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDiv = document.createElement("div");
+                dayDiv.classList.add("day");
+                dayDiv.textContent = day;
 
-// Handle donation button click
-donateButton.onclick = (event) => {
-  event.preventDefault();
-  if (selectedDates.size > 0) {
-    const formattedDates = Array.from(selectedDates).join(",");
-    donateButton.href = `donation.php?meal=${selectedMealPackage}&dates=${formattedDates}`;
-    window.location.href = donateButton.href;
-  } else {
+                const dayDate = new Date(year, month, day);
+                dayDate.setHours(0, 0, 0, 0);
+                const dateKey = formatDate(dayDate);
 
- 
-                    toastr.options = {
-                        closeButton: true,
-                        progressBar: true,
-                        showMethod: 'fadeIn', // A valid animation method
-                        hideMethod: 'fadeOut',
-                        timeOut: 5000, // Duration in milliseconds
+                // Highlight today's date
+                if (dateKey === formatDate(today)) {
+                    dayDiv.classList.add("today");
+                }
+
+                // Disable past dates
+                if (dayDate < today) {
+                    dayDiv.classList.add("disabled");
+                } else {
+                    // Click to select/deselect dates
+                    dayDiv.onclick = () => {
+                        if (selectedDates.has(dateKey)) {
+                            selectedDates.delete(dateKey);
+                            dayDiv.classList.remove("selected");
+                        } else {
+                            selectedDates.add(dateKey);
+                            dayDiv.classList.add("selected");
+                        }
                     };
+                }
 
-                    toastr.error('Please select at least one future date for your donation.');
-          
-    alert("Please select at least one future date for your donation.");
-  }
-};
+                // Highlight previously selected dates
+                if (selectedDates.has(dateKey)) {
+                    dayDiv.classList.add("selected");
+                }
 
-// Initial render when page loads
-document.addEventListener("DOMContentLoaded", renderCalendar);
+                calendar.appendChild(dayDiv);
+            }
+        }
 
+        // Handle month navigation WITHOUT RELOAD
+        prevMonth.addEventListener("click", (event) => {
+            event.preventDefault(); // Prevent page reload
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
 
-  </script>
+        nextMonth.addEventListener("click", (event) => {
+            event.preventDefault(); // Prevent page reload
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+
+        // Update meal selection
+        mealOptions.onchange = () => {
+            selectedMealPackage = mealOptions.value;
+        };
+
+        // Handle donation button click
+        donateButton.onclick = (event) => {
+            event.preventDefault();
+
+            // Convert Set to an array and filter out invalid dates
+            const validDates = Array.from(selectedDates).filter(date => {
+                const dateObj = new Date(date);
+                dateObj.setHours(0, 0, 0, 0);
+                return dateObj >= new Date().setHours(0, 0, 0, 0); // Only future or today’s date
+            });
+
+            if (validDates.length > 0) {
+                const formattedDates = validDates.join(",");
+                donateButton.href = `donation.php?meal=${selectedMealPackage}&dates=${formattedDates}`;
+                window.location.href = donateButton.href;
+            } else {
+                toastr.error('Please select at least one future date for your donation.');
+                alert("Please select at least one future date for your donation.");
+            }
+        };
+
+        // Initial render when page loads
+        document.addEventListener("DOMContentLoaded", renderCalendar);
+    </script>
   <script>
     let currentIndex = 0;
     const items = document.querySelectorAll('.donation-item');

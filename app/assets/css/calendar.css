@@ -413,6 +413,7 @@ a.fc-event,
 .fc-event-time,
 .fc-event-title {
   padding: 0 1px;
+  font-size: 18px !important;
 }
 
 .fc .ui-resizable-handle {

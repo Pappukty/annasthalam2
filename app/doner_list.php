@@ -28,14 +28,14 @@ if (isset($_POST['delete_now'])) {
 
 ?>
 
-    <!-- Bootstrap CSS -->
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> -->
+<!-- Bootstrap CSS -->
+<!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> -->
 
-    <!-- DataTables CSS -->
-    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
+<!-- DataTables CSS -->
+<link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
 
-    <style>
+<style>
     body {
         background-color: #f8f9fa;
     }
@@ -101,12 +101,13 @@ if (isset($_POST['delete_now'])) {
             <tr>
                 <th>S.No</th>
                 <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
+                <th>Customer Details</th>
+                <!-- <th>Phone</th> -->
                 <th>Event</th>
                 <!-- <th>Service</th> -->
                 <th>Date</th>
                 <th>Meals Count</th>
+                <th>Status</th>
                 <th>Total Amount</th>
                 <!-- <th>Comments</th> -->
                 <th>Actions</th>
@@ -127,12 +128,31 @@ if (isset($_POST['delete_now'])) {
                         <td><?php echo $i;
                             $i++; ?></td>
                         <td><?php echo $Row->name; ?></td>
-                        <td><?php echo $Row->email; ?></td>
-                        <td><?php echo $Row->phone; ?></td>
+                        <td><?php echo $Row->email; ?>
+                    
+                    <br>
+                    <?php echo $Row->phone; ?>
+                </td>
+                      
                         <td><?php echo $Row->event; ?></td>
                         <!-- <td><?php echo $Row->service_date; ?></td> -->
-                        <td><?php echo $Row->dob; ?></td>
+                        <td><?php echo $Row->service_date; ?></td>
                         <td><?php echo $Row->meals_count; ?></td>
+                        <td>
+                            <?php
+                            $status = strtolower($Row->status); // Convert to lowercase for consistency
+                            if ($status == 'completed') {
+                                echo '<span class="badge bg-success">Completed</span>';
+                            } elseif ($status == 'pending') {
+                                echo '<span class="badge bg-warning text-dark">Pending</span>';
+                            } elseif ($status == 'failed') {
+                                echo '<span class="badge bg-danger">Failed</span>';
+                            } else {
+                                echo '<span class="badge bg-secondary">Unknown</span>';
+                            }
+                            ?>
+                        </td>
+
                         <td><?php echo $Row->total_amount; ?></td>
                         <!-- <td><?php echo $Row->comments; ?></td> -->
                         <td>
@@ -179,51 +199,62 @@ if (isset($_POST['delete_now'])) {
 
 </div>
 
-    <!-- jQuery and Bootstrap Bundle -->
+<!-- jQuery and Bootstrap Bundle -->
 
-    <!-- jQuery and Bootstrap Bundle -->
-  
-
- 
+<!-- jQuery and Bootstrap Bundle -->
 
 
-    <!-- datables -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
 
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
-    <!-- DataTables Buttons JS -->
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#example').DataTable({
-                "pagingType": "full_numbers",
-                "language": {
-                    "search": "_INPUT_",
-                    "searchPlaceholder": "Search records...",
-                    "paginate": {
-                        "previous": "Previous",
-                        "next": "Next"
-                    }
+
+<!-- datables -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- DataTables Buttons JS -->
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#example').DataTable({
+            "pagingType": "full_numbers",
+            "language": {
+                "search": "_INPUT_",
+                "searchPlaceholder": "Search records...",
+                "paginate": {
+                    "previous": "Previous",
+                    "next": "Next"
+                }
+            },
+            dom: "<'row'<'col-sm-6'B><'col-sm-6'f>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-6'i><'col-sm-6'p>>",
+            buttons: [{
+                    extend: 'excelHtml5',
+                    className: 'btn btn-primary btn-sm',
+                    text: 'Export to Excel'
                 },
-                dom: "<'row'<'col-sm-6'B><'col-sm-6'f>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-6'i><'col-sm-6'p>>",
-                buttons: [
-                    { extend: 'excelHtml5', className: 'btn btn-primary btn-sm', text: 'Export to Excel' },
-                    { extend: 'pdfHtml5', className: 'btn btn-primary btn-sm', text: 'Export to PDF' },
-                    { extend: 'print', className: 'btn btn-primary btn-sm', text: 'Print' }
-                ]
-            });
+                {
+                    extend: 'pdfHtml5',
+                    className: 'btn btn-primary btn-sm',
+                    text: 'Export to PDF'
+                },
+                {
+                    extend: 'print',
+                    className: 'btn btn-primary btn-sm',
+                    text: 'Print'
+                }
+            ]
         });
-        document.addEventListener('DOMContentLoaded', function() {
+    });
+    document.addEventListener('DOMContentLoaded', function() {
         // Initialize the modal instance
         const deleteModal = new bootstrap.Modal(document.getElementById('delete-board-alert'));
 
@@ -240,8 +271,8 @@ if (isset($_POST['delete_now'])) {
             });
         });
     });
-    </script>
- <?php 
+</script>
+<?php
 include_once './include/footer.php';
 
 

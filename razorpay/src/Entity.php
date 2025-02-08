@@ -7,16 +7,11 @@ use Razorpay\Api\Errors;
 class Entity extends Resource implements ArrayableInterface
 {
     protected $attributes = array();
- /**
-     * Create method 
-     *
-     * @param array $attributes 
-     * 
-     */
-    protected function create($attributes = null) 
+
+    protected function create($attributes = null)
     {
         $entityUrl = $this->getEntityUrl();
-        
+
         return $this->request('POST', $entityUrl, $attributes);
     }
 
@@ -24,34 +19,27 @@ class Entity extends Resource implements ArrayableInterface
     {
         $entityUrl = $this->getEntityUrl();
 
-        $this->validateIdPresence($id);
-
-        $relativeUrl = $entityUrl . $id;
-       
-        return $this->request('GET', $relativeUrl);
-    }
-
-    protected function validateIdPresence($id)
-    {
-        if ($id !== null)
+        if ($id === null)
         {
-            return;
+            $path = explode('\\', get_class($this));
+            $class = strtolower(array_pop($path));
+
+            $message = 'The ' . $class . ' id provided is null';
+
+            $code = Errors\ErrorCode::BAD_REQUEST_ERROR;
+
+            throw new Errors\BadRequestError($message, $code, 500);
         }
 
-        $path = explode('\\', get_class($this));
-        $class = strtolower(array_pop($path));
+        $relativeUrl = $entityUrl . $id;
 
-        $message = 'The ' . $class . ' id provided is null';
-
-        $code = Errors\ErrorCode::BAD_REQUEST_ERROR;
-
-        throw new Errors\BadRequestError($message, $code, 500);
+        return $this->request('GET', $relativeUrl);
     }
 
     protected function all($options = array())
     {
         $entityUrl = $this->getEntityUrl();
-        
+
         return $this->request('GET', $entityUrl, $options);
     }
 
@@ -60,39 +48,18 @@ class Entity extends Resource implements ArrayableInterface
         $fullClassName = get_class($this);
         $pos = strrpos($fullClassName, '\\');
         $className = substr($fullClassName, $pos + 1);
-        $className = $this->snakeCase($className);
+        $className = lcfirst($className);
         return $className.'s/';
     }
 
-    protected function snakeCase($input)
-    {
-        $delimiter = '_';
-        $output = preg_replace('/\s+/u', '', ucwords($input));
-        $output = preg_replace('/(.)(?=[A-Z])/u', '$1'.$delimiter, $output);
-        $output = strtolower($output);
-        return $output;
-    }
-
-    /**
-     * Makes a HTTP request using Request class and assuming the API returns
-     * formatted entity or collection result, wraps the returned JSON as entity
-     * and returns.
-     *
-     * @param string $method
-     * @param string $relativeUrl
-     * @param array  $data
-     * @param array  $additionHeader
-     * @param string $apiVersion
-     *
-     * @return Entity
-     */
-    protected function request($method, $relativeUrl, $data = null, $apiVersion = "v1")
+    protected function request($method, $relativeUrl, $data = null)
     {
         $request = new Request();
 
-        $response = $request->request($method, $relativeUrl, $data, $apiVersion);
+        $response = $request->request($method, $relativeUrl, $data);
 
-        if ((isset($response['entity'])) and ($response['entity'] == $this->getEntity()))
+        if ((isset($response['entity'])) and
+            ($response['entity'] == $this->getEntity()))
         {
             $this->fill($response);
 
@@ -103,15 +70,7 @@ class Entity extends Resource implements ArrayableInterface
             return static::buildEntity($response);
         }
     }
-    
-    /**
-     * Given the JSON response of an API call, wraps it to corresponding entity
-     * class or a collection and returns the same.
-     *
-     * @param array $data
-     *
-     * @return Entity
-     */
+
     protected static function buildEntity($data)
     {
         $entities = static::getDefinedEntitiesArray();
@@ -146,8 +105,7 @@ class Entity extends Resource implements ArrayableInterface
             'refund',
             'order',
             'customer',
-            'token',
-            'settlement');
+            'token');
     }
 
     protected static function getEntityClass($name)
@@ -167,9 +125,7 @@ class Entity extends Resource implements ArrayableInterface
     public function fill($data)
     {
         $attributes = array();
-        
-     if(is_array($data))
-     {   
+
         foreach ($data as $key => $value)
         {
             if (is_array($value))
@@ -177,6 +133,7 @@ class Entity extends Resource implements ArrayableInterface
                 if  (static::isAssocArray($value) === false)
                 {
                     $collection = array();
+
                     foreach ($value as $v)
                     {
                         if (is_array($v))
@@ -189,6 +146,7 @@ class Entity extends Resource implements ArrayableInterface
                             array_push($collection, $v);
                         }
                     }
+
                     $value = $collection;
                 }
                 else
@@ -199,7 +157,7 @@ class Entity extends Resource implements ArrayableInterface
 
             $attributes[$key] = $value;
         }
-      }
+
         $this->attributes = $attributes;
     }
 
@@ -230,17 +188,5 @@ class Entity extends Resource implements ArrayableInterface
         }
 
         return $array;
-    }
-
-    public function setFile($attributes)
-    {
-        if(isset($attributes['file'])){
-            $attributes['file'] = new \CURLFILE(
-                $attributes['file'],
-                mime_content_type($attributes['file'])
-            );
-        }
-
-        return $attributes;   
     }
 }

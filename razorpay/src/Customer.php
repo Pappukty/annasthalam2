@@ -12,7 +12,7 @@ class Customer extends Entity
         return parent::fetch($id);
     }
 
-    public function all($options = array())
+     public function all($options = array())
     {
         return parent::all($options);
     }
@@ -36,33 +36,5 @@ class Customer extends Entity
         $token['customer_id'] = $this->id;
 
         return $token;
-    }
-
-    public function addBankAccount($attributes = array())
-    {
-        $entityUrl = $this->getEntityUrl().$this->id. '/bank_account';
-
-        return $this->request('POST', $entityUrl, $attributes);
-    }
-
-    public function deleteBankAccount($bank_id)
-    {
-        $entityUrl = $this->getEntityUrl() . $this->id. '/bank_account/'. $bank_id;
-
-        return $this->request('DELETE', $entityUrl);
-    }
-
-    public function requestEligibilityCheck($attributes = array())
-    {
-        $entityUrl = $this->getEntityUrl(). '/eligibility';
-
-        return $this->request('POST', $entityUrl, $attributes);
-    }
-
-    public function fetchEligibility($id)
-    {
-        $entityUrl = $this->getEntityUrl(). '/eligibility/'. $id;
-
-        return $this->request('GET', $entityUrl);
     }
 }

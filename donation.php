@@ -1,36 +1,111 @@
 <?php
-
+// donation.php
 require 'razorpay/Razorpay.php';
 
 use Razorpay\Api\Api;
 
 include_once './app/class/databaseConn.php';
-include_once './app/class/fileUploader.php';
 
 $DatabaseCo = new DatabaseConn();
-
-
-$keyId = "rzp_test_geqUM0Pl34yBo6";
-$keySecret = "ar3OtUJd6ZRwDCvy5vWkcLI0";
-
-$api = new Api($keyId, $keySecret);
-
-$orderData = [
-  'receipt'         => rand(1000, 9999),
-  'amount'          => 100 * 100, // Amount in paise (100 INR)
-  'currency'        => 'INR',
-  'payment_capture' => 1
-];
-
-
 // Fetch the data from the query string using $_GET
 $meal = isset($_GET['meal']) ? $_GET['meal'] : 'Not specified';
 $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
+// Razorpay credentials
+$keyId     = "rzp_test_geqUM0Pl34yBo6";
+$keySecret = "ar3OtUJd6ZRwDCvy5vWkcLI0";
 
-// Display the values
-// echo "Meal Package: " . $meal . "<br>";
-// echo "Donation Date: " . $date;
+// Create Razorpay API instance
+$api = new Api($keyId, $keySecret);
+
+// Process POST requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  // Use "action" to differentiate between the two steps
+  $action = $_POST['action'] ?? '';
+
+  // ─── STEP 1: Create Razorpay Order ─────────────────────────────
+  if ($action === 'create_order') {
+    $donationAmount = floatval($_POST['total_amount'] ?? 0);
+    if ($donationAmount <= 0) {
+      echo json_encode(["status" => "error", "message" => "Invalid donation amount"]);
+      exit;
+    }
+    try {
+      // Create an order in Razorpay
+      $orderData = [
+        'receipt'         => rand(1000, 9999),
+        'amount'          => $donationAmount * 100, // amount in paise
+        'currency'        => 'INR',
+        'payment_capture' => 1
+      ];
+      $razorpayOrder = $api->order->create($orderData);
+      $razorpayOrderId = $razorpayOrder['id'];
+
+      echo json_encode(["status" => "success", "order_id" => $razorpayOrderId]);
+    } catch (Exception $e) {
+      echo json_encode(["status" => "error", "message" => "Error creating order: " . $e->getMessage()]);
+    }
+    exit;
+  }
+  // ─── STEP 2: Complete Donation (insert all data) ────────────────
+  elseif ($action === 'complete_donation') {
+    // Get form fields (adjust names as needed)
+    $donorName     = trim($_POST['name'] ?? '');
+    $donorEvent    = trim($_POST['event'] ?? '');
+    $email         = trim($_POST['email'] ?? '');
+    $phone         = trim($_POST['phone'] ?? '');
+    $serviceDate   = trim($_POST['service_date'] ?? '');
+    $dob           = trim($_POST['dob'] ?? '');
+    $foodCount     = trim($_POST['meals_count'] ?? '');
+    $donationAmount = floatval($_POST['total_amount'] ?? 0);
+    $comments      = trim($_POST['comments'] ?? '');
+    $razorpayOrderId = $_POST['order_id'] ?? '';
+    $paymentId     = $_POST['payment_id'] ?? '';
+
+    if (empty($razorpayOrderId) || empty($paymentId)) {
+      echo json_encode(["status" => "error", "message" => "Payment information missing"]);
+      exit;
+    }
+
+    // Fetch payment details from Razorpay to get the payment method
+    $payment = $api->payment->fetch($paymentId);
+    // The payment object includes a 'method' property:
+    $paymentMethod = $payment->method;
+
+    // Insert the donation record with status "completed"
+    $sql = "INSERT INTO donation 
+            (name, event, email, phone, service_date, dob, meals_count, total_amount, comments, status, payment_id, order_id, payment_method) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $DatabaseCo->dbLink->prepare($sql);
+    $status = "completed";
+    // Corrected bind_param type string: status is a string ("s") not an integer ("i")
+    // and using $paymentMethod (not $payment_method)
+    $stmt->bind_param(
+      "ssssssidsssss",
+      $donorName,
+      $donorEvent,
+      $email,
+      $phone,
+      $serviceDate,
+      $dob,
+      $foodCount,
+      $donationAmount,
+      $comments,
+      $status,
+      $paymentId,
+      $razorpayOrderId,
+      $paymentMethod
+    );
+    if ($stmt->execute()) {
+      echo json_encode(["status" => "success", "message" => "Donation recorded successfully"]);
+    } else {
+      echo json_encode(["status" => "error", "message" => "Database error: " . $stmt->error]);
+    }
+    $stmt->close();
+    exit;
+  }
+}
 ?>
+
 
 
 
@@ -58,8 +133,8 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
     rel="stylesheet" />
-<!-- toster -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+  <!-- toster -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
   <!-- Swiper CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 
@@ -498,9 +573,8 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
       <div class="col-12 col-md-8">
         <div class="form-container shadow-lg p-3 mb-5 bg-body rounded" id="donation-options">
           <h2 class="form-heading">DONATE FOR A SPECIAL DAY</h2>
-          <form action="donation_process.php" id="donationForm" method="POST">
+          <form action="donation.php" id="donationForm" method="POST">
             <div class="row g-3">
-              <!-- Donor Name -->
               <div class="col-12 col-md-6">
                 <label for="donorName" class="form-label">Donor Name *</label>
                 <input type="text" class="form-control py-3" id="donorName" name="name" placeholder="Donor Name" required>
@@ -517,12 +591,10 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
                 </select>
               </div>
 
-              <!-- Email Address -->
               <div class="col-12 col-md-6">
                 <label for="emailAddress" class="form-label">Email Address *</label>
                 <input type="email" class="form-control py-3" name="email" id="emailAddress" placeholder="Donor Email" required>
               </div>
-              <!-- Phone Number -->
               <div class="col-12 col-md-6">
                 <label for="phone" class="form-label">Phone *</label>
                 <div class="input-group">
@@ -531,35 +603,29 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
                 </div>
               </div>
 
-              <!-- Service Date -->
               <div class="col-12 col-md-6">
                 <label for="serviceDate" class="form-label">Service Date</label>
-                <input type="date" class="form-control py-3" id="service_date" name="service_date" value="<?php echo $date; ?>" id="serviceDate" readonly>
+                <input type="date" class="form-control py-3" id="service_date" name="service_date" value="<?php echo $date; ?>" readonly>
               </div>
-              <!-- Date of Birth -->
               <div class="col-12 col-md-6">
                 <label for="dob" class="form-label">Date of Birth</label>
                 <input type="date" class="form-control py-3" name="dob" id="dob" required>
               </div>
 
-              <!-- Food Count -->
               <div class="col-12 col-md-6">
                 <label for="meals_count" class="form-label">Meals Count</label>
-                <select class="form-select p-3" id="mealsCount" name="meals_count" disabled>
+                <select class="form-select p-3" id="meals_count" name="meals_count" disabled>
                   <option value="50" <?php echo $meal == 1750 ? 'selected' : ''; ?>>50 Meals</option>
                   <option value="100" <?php echo $meal == 3700 ? 'selected' : ''; ?>>100 Meals</option>
                   <option value="150" <?php echo $meal == 5000 ? 'selected' : ''; ?>>150 Meals</option>
                 </select>
-
-                <!-- <input type="number" class="form-control py-3" name="meals_count" id="foodCount" placeholder="25"> -->
+                <input type="hidden" id="meals_count" name="meals_count" value="<?php echo $meal == 1750 ? '50' : ($meal == 3700 ? '100' : ($meal == 5000 ? '150' : '')); ?>">
               </div>
-              <!-- Donation Amount -->
               <div class="col-12 col-md-6">
                 <label for="donationAmount" class="form-label">Total Amount *</label>
                 <input type="number" class="form-control py-3" name="total_amount" value="<?php echo $meal; ?>" id="donationAmount" placeholder="Enter Donation Amount" required readonly>
               </div>
 
-              <!-- Additional Comments -->
               <div class="col-12">
                 <label for="additionalComments" class="form-label">Additional Comments</label>
                 <textarea class="form-control" id="comments" name="comments" rows="4"></textarea>
@@ -567,9 +633,10 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
             </div>
 
             <div class="mt-4 text-center">
-              <button type="button" id="payWithRazorpay" class="btn btn-primary py-3 px-5">Pay with Razorpay</button>
+              <input type="submit" id="payWithRazorpay" name="pay" class="btn btn-primary py-3 px-5"></input>
             </div>
           </form>
+
         </div>
       </div>
 
@@ -671,96 +738,152 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
   </section>
   <section>
 
-<div class="container mb-3">
-  <!-- <div class="title text-center my-5">
+    <div class="container mb-3">
+      <!-- <div class="title text-center my-5">
         <h1 class="display-4 text-danger">Responsive Carousel Gallery</h1>
     </div> -->
 
-  <div class="carousel-gallery">
-    <div class="swiper-container">
-      <div class="swiper-wrapper">
-        <!-- Example Image Slides -->
-        <?php
-        // Fetch all data from temples table with limit and offset
-        $select = "SELECT * FROM `gallery` ORDER BY index_id DESC";
-        $SQL_STATEMENT = mysqli_query($DatabaseCo->dbLink, $select);
+      <div class="carousel-gallery">
+        <div class="swiper-container">
+          <div class="swiper-wrapper">
+            <!-- Example Image Slides -->
+            <?php
+            // Fetch all data from temples table with limit and offset
+            $select = "SELECT * FROM `gallery` ORDER BY index_id DESC";
+            $SQL_STATEMENT = mysqli_query($DatabaseCo->dbLink, $select);
 
-        // Check if any rows are returned
-        if (mysqli_num_rows($SQL_STATEMENT) > 0) {
-            while ($Row = mysqli_fetch_assoc($SQL_STATEMENT)) {
+            // Check if any rows are returned
+            if (mysqli_num_rows($SQL_STATEMENT) > 0) {
+              while ($Row = mysqli_fetch_assoc($SQL_STATEMENT)) {
                 $gallery_image = $Row['gallery_image'];
                 // $title = $Row['title'];
-        ?>
-        <div class="swiper-slide">
-          <a href="./app/uploads/gallery/<?php echo $gallery_image; ?>" data-fancybox="gallery">
-            <div class="image" style="background-image: url('./app/uploads/gallery/<?php echo $gallery_image; ?>');"></div>
-          </a>
-        </div>
-                  <!-- End listing card -->
-                  <?php
+            ?>
+                <div class="swiper-slide">
+                  <a href="./app/uploads/gallery/<?php echo $gallery_image; ?>" data-fancybox="gallery">
+                    <div class="image" style="background-image: url('./app/uploads/gallery/<?php echo $gallery_image; ?>');"></div>
+                  </a>
+                </div>
+                <!-- End listing card -->
+            <?php
+              }
+            } else {
+              echo "<p class='text-center'>No temples found.</p>";
             }
-        } else {
-            echo "<p class='text-center'>No temples found.</p>";
-        }
-        ?>
-     
-      </div>
+            ?>
 
-      <!-- Pagination -->
-      <div class="swiper-pagination"></div>
+          </div>
+
+          <!-- Pagination -->
+          <div class="swiper-pagination"></div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-</section>
+  </section>
   <footer class="bg-dark text-white text-center py-3">
     <p>&copy; 2025 Donation Page. All rights reserved.</p>
   </footer>
 
-
+  <!-- ✅ Razorpay Payment Script -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script>
-    $(document).ready(function() {
-      $("#donationForm").submit(function(e) {
-        e.preventDefault(); // Prevent default form submission
+    // Global variable to save form data for later use
+    let formDataGlobal = null;
+    // Global variable to save the payment method returned by the server
+    let paymentMethod = "";
 
-        // Log form data to the console before submission
-        console.log("Form Data:", $(this).serialize());
+    // Intercept the form submission
+    document.getElementById('donationForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      let formData = new FormData(form);
+      // Save form data globally to use later in the payment success handler
+      formDataGlobal = formData;
+      // Append an action flag for order creation
+      formData.append("action", "create_order");
 
-        $.ajax({
-          url: "donation_process.php",
-          type: "POST",
-          data: $(this).serialize(),
-          dataType: "json", // Expecting a JSON response
-          success: function(response) {
-            // Handle the success or error response
-            if (response.status === "success") {
-              console.log("Form submitted successfully!");
-              toastr.success(response.message, 'Success', {
-                timeOut: 5000
-              }); // Show success message
-              $("#donationForm")[0].reset(); // Reset form after submission
-            } else {
-              console.log("Error: " + response.message);
-              toastr.error(response.message, 'Error', {
-                timeOut: 5000
-              }); // Show error message
-            }
-          },
-          error: function(xhr, status, error) {
-            console.log("AJAX Error:", error); // Detailed error message
-            console.log("Response Text:", xhr.responseText); // Log response text
-            toastr.error('Something went wrong. Please try again.', 'Error', {
-              timeOut: 5000
-            }); // Show error message
+      // Step 1: Create Razorpay order by sending form data via AJAX
+      fetch('donation.php', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === "success") {
+            console.log(data);
+            let orderId = data.order_id;
+            // Save the payment method (if provided by your server)
+            paymentMethod = data.method;
+            console.log("Payment method from server:", paymentMethod);
+
+            // Step 2: Open Razorpay Checkout with the order id and donation amount
+            let options = {
+              "key": "<?php echo $keyId; ?>", // Your Razorpay Key ID
+              "name": "Annasthalam",
+              "image": "./image/logo.jpg",
+              "order_id": orderId,
+              "handler": function(response) {
+                // Payment was successful – now send the complete donation data to the server
+                let completeData = new FormData();
+                completeData.append("action", "complete_donation");
+                // Append all form fields from the previously saved formDataGlobal
+                for (let pair of formDataGlobal.entries()) {
+                  if (pair[0] !== "action") {
+                    completeData.append(pair[0], pair[1]);
+                  }
+                }
+                // Append payment details from Razorpay
+                completeData.append("order_id", orderId);
+                completeData.append("payment_id", response.razorpay_payment_id);
+                // Append payment method as well
+                completeData.append("payment_method", paymentMethod);
+
+                // Step 3: Complete donation and insert all data into the database
+                fetch('donation.php', {
+                    method: 'POST',
+                    body: completeData
+                  })
+                  .then(resp => resp.json())
+                  .then(respData => {
+                    if (respData.status === "success") {
+                      toastr.options = {
+            closeButton: true,
+            progressBar: true,
+            showMethod: 'fadeIn', // A valid animation method
+            hideMethod: 'fadeOut',
+            timeOut: 5000, // 5 seconds duration
+          };
+
+          toastr.success('Payment successful!');
+           // Delay reload until toast fully disappears
+           setTimeout(function() {
+            location.reload();
+          }, 5000); // Wait 5 seconds before reloading
+
+
+                      // alert("Donation recorded successfully!");
+                      // Optionally, reset the form or redirect the user
+                    } else {
+                      alert("Error: " + respData.message);
+                    }
+                  })
+                  .catch(error => console.error("Error:", error));
+              },
+              "theme": {
+                "color": "#2ac5f1"
+              }
+            };
+            var rzp = new Razorpay(options);
+            rzp.open();
+          } else {
+            alert("Error: " + data.message);
           }
-        });
-      });
+        })
+        .catch(error => console.error("Error:", error));
     });
-    // toastr.success('Form submitted successfully!', 'Success', {
-    //     timeOut: 5000,
-    //     positionClass: 'toast-top-right',  // Change the position
-    //     progressBar: true  // Show progress bar
-    // });
   </script>
+
+
+ 
 
 
   <script>
@@ -848,89 +971,12 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
 
 
 
-  <script>
-    document.getElementById("payWithRazorpay").addEventListener("click", function() {
-      var name = document.getElementById("donorName").value;
-      var email = document.getElementById("emailAddress").value;
-      var phone = document.getElementById("phone").value;
-      var amount = document.getElementById("donationAmount").value * 100; // Convert to paise
-      var event = document.getElementById("donorEvent").value;
-      var serviceDate = document.getElementById("service_date").value;
-      var dob = document.getElementById("dob").value;
-      var mealsCount = document.getElementById("mealsCount").value;
-      var comments = document.getElementById("comments").value;
-
-      if (!name || !email || !phone || !amount) {
-        toastr.options = {
-            closeButton: true,
-            progressBar: true,
-            showMethod: 'fadeIn', // A valid animation method
-            hideMethod: 'fadeOut',
-            timeOut: 5000, // 5 seconds duration
-          };
-
-          toastr.error('Please fill all required fields!');
-        // alert("Please fill all required fields!");
-        return;
-      }
-
-      var options = {
-        "key": "<?php echo $razorpayKey; ?>",
-        "amount": amount,
-        "currency": "INR",
-        "name": "Annasthalam",
-        "description": "Donation to Charity",
-        "image": "./image/logo.jpg",
-        "handler": function(response) {
-          console.log(response);
-          savePayment(response, name, email, phone, amount / 100, event, serviceDate, dob, mealsCount, comments);
-        },
-        "prefill": {
-          "name": name,
-          "email": email,
-          "contact": phone
-        },
-        "theme": {
-          "color": "#3399cc"
-        }
-      };
-
-      var rzp = new Razorpay(options);
-      rzp.open();
-    });
-
-    function savePayment(response, name, email, phone, amount, event, serviceDate, dob, mealsCount, comments) {
-      var xhr = new XMLHttpRequest();
-      console.log(response);
-      xhr.open("POST", "donation_process.php", true);
-      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-
-          toastr.options = {
-            closeButton: true,
-            progressBar: true,
-            showMethod: 'fadeIn', // A valid animation method
-            hideMethod: 'fadeOut',
-            timeOut: 5000, // 5 seconds duration
-          };
-
-          toastr.success('Payment successful!');
-
-          // Delay reload until toast fully disappears
-          setTimeout(function() {
-            location.reload();
-          }, 5000); // Wait 5 seconds before reloading
-        }
-      };
-      xhr.send("payment_id=" + response.razorpay_payment_id + "&name=" + name + "&email=" + email + "&phone=" + phone + "&amount=" + amount + "&event=" + event + "&service_date=" + serviceDate + "&dob=" + dob + "&meals_count=" + mealsCount + "&comments=" + comments);
-    }
-  </script>
 
 
 
 
-  
+
+
   <script>
     $(document).ready(function() {
       var swiper = new Swiper('.swiper-container', {
@@ -986,16 +1032,16 @@ $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
 
 
 
-    <!-- Razorpay SDK -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<!-- Swiper JS -->
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <!-- Razorpay SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <!-- Swiper JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
-<!-- jQuery and FancyBox JS -->
-<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
-<!-- toaster -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+  <!-- jQuery and FancyBox JS -->
+  <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+  <!-- toaster -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

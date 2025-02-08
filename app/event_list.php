@@ -148,7 +148,7 @@ if (isset($_POST['delete_now'])) {
 
 
                         <td>
-                      <a class=" edit-board alert-box-trigger waves-effect waves-light kill-drop" href="add_event.php?id=<?php echo $Row->index_id; ?>"><button class="btn btn-warning btn-sm">Edit</button></a>
+                      <a class=" edit-board p-2 alert-box-trigger waves-effect waves-light kill-drop" href="add_event.php?id=<?php echo $Row->index_id; ?>"><button class="btn btn-warning btn-sm">Edit</button></a>
 
                             <!-- Delete Button -->
                             <!-- Delete Button -->

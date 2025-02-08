@@ -16,7 +16,7 @@ if (isset($_POST['delete_now'])) {
     // Execute the query
     if ($stmt->execute()) {
         // Redirect after successful deletion (Optional: You can set a success message)
-        header("Location: doner_list.php");
+        header("Location: payment_list.php");
     } else {
         // Error message if something went wrong
         echo "Error: " . $stmt->error;
@@ -100,15 +100,15 @@ if (isset($_POST['delete_now'])) {
         <thead class="table-dark">
             <tr>
                 <th>S.No</th>
-                <th>Name</th>
+                <th>Customer Details</th>
          
-                <th>Phone</th>
-                <th>Payment_id</th>
+                <th>payment method</th>
+                <th>Payment id</th>
                 <!-- <th>Service</th> -->
                 <th>Date</th>
              
                 <th> Amount</th>
-                <!-- <th>Comments</th> -->
+                <th>Status</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -126,15 +126,31 @@ if (isset($_POST['delete_now'])) {
                     <tr>
                         <td><?php echo $i;
                             $i++; ?></td>
-                        <td><?php echo $Row->name; ?></td>
+                        <td><?php echo $Row->name; ?>
+                    <br>
+                    <?php echo $Row->phone; ?>
+                </td>
                        
-                        <td><?php echo $Row->phone; ?></td>
+                        <td>  <?php echo $Row->payment_method; ?></td>
                         <td><?php echo $Row->payment_id; ?></td>
                         <!-- <td><?php echo $Row->service_date; ?></td> -->
-                        <td><?php echo $Row->dob; ?></td>
+                        <td><?php echo $Row->service_date; ?></td>
                        
                         <td><?php echo $Row->total_amount; ?></td>
-                        <!-- <td><?php echo $Row->comments; ?></td> -->
+                        <td>
+                            <?php
+                            $status = strtolower($Row->status); // Convert to lowercase for consistency
+                            if ($status == 'completed') {
+                                echo '<span class="badge bg-success">Completed</span>';
+                            } elseif ($status == 'pending') {
+                                echo '<span class="badge bg-warning text-dark">Pending</span>';
+                            } elseif ($status == 'failed') {
+                                echo '<span class="badge bg-danger">Failed</span>';
+                            } else {
+                                echo '<span class="badge bg-secondary">Unknown</span>';
+                            }
+                            ?>
+                        </td>
                         <td>
                             <!-- <button class="btn btn-warning btn-sm">Edit</button> -->
                             <!-- Delete Button -->
@@ -156,7 +172,7 @@ if (isset($_POST['delete_now'])) {
     </table>
 </div>
 <div id="delete-board-alert" class="modal fade alert-box" tabindex="-1" role="dialog" aria-hidden="true">
-    <form action="doner_list.php" method="post" name="delete_form" id="delete_form">
+    <form action="payment_list.php" method="post" name="delete_form" id="delete_form">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
