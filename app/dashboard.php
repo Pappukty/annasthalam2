@@ -156,7 +156,7 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
       <div class="row">
         <div class="col-lg-6 col-md-12 col-6 mb-6">
           <div class="card h-100">
-                <div class="card-body">
+            <div class="card-body">
               <div class="card-title d-flex align-items-start justify-content-between mb-4">
                 <div class="avatar flex-shrink-0">
                   <img src="./assets/img/icons/unicons/chart-success.png" alt="chart success" class="rounded" />
@@ -179,9 +179,9 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
                 <i class="bx <?php echo $arrow_class_total; ?>"></i> <?php echo $percentage_change_display_total; ?> Total
               </small>
 
-          
 
-      
+
+
             </div>
           </div>
         </div>
@@ -243,10 +243,10 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
               <p class="mb-1">Payments</p>
               <h4 class="card-title mb-3">₹<?php echo number_format($total_amt, 2); ?></h4>
               <small class="<?php echo $color_class; ?> fw-medium">
-        <i class="bx bx-<?php echo $percentage_change < 0 ? 'down' : 'up'; ?>-arrow-alt"></i> 
-        <?php echo $percentage_change_formatted; ?>%
-    </small>
-    <!-- <p class="<?php echo $daily_progress_color; ?>">
+                <i class="bx bx-<?php echo $percentage_change < 0 ? 'down' : 'up'; ?>-arrow-alt"></i>
+                <?php echo $percentage_change_formatted; ?>%
+              </small>
+              <!-- <p class="<?php echo $daily_progress_color; ?>">
         <?php echo "Progress: " . $daily_progress_formatted . "% of daily target"; ?>
     </p> -->
             </div>
@@ -275,14 +275,14 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
                   </div>
                 </div>
               </div>
-              <p class="mb-1">Transactions</p>
+              <p class="mb-1">Transactions Today</p>
               <h4 class="card-title mb-3">₹<?php echo number_format($total_amt_today, 2); ?></h4>
 
-<!-- Percentage Change Display -->
-<small class="<?php echo $color_class_today; ?> fw-medium">
-    <i class="bx bx-<?php echo $percentage_change_from_target < 0 ? 'down' : 'up'; ?>-arrow-alt"></i> 
-    <?php echo ($percentage_change_from_target < 0 ? '' : '+') . $percentage_change_formatted_from_target; ?>%
-</small>
+              <!-- Percentage Change Display -->
+              <small class="<?php echo $color_class_today; ?> fw-medium">
+                <i class="bx bx-<?php echo $percentage_change_from_target < 0 ? 'down' : 'up'; ?>-arrow-alt"></i>
+                <?php echo ($percentage_change_from_target < 0 ? '' : '+') . $percentage_change_formatted_from_target; ?>%
+              </small>
 
 
             </div>
@@ -371,7 +371,7 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
                 <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                   <div class="me-2">
                     <small class="d-block">Credit Card</small>
-                    <h6 class="fw-normal mb-0">  Donation</h6>
+                    <h6 class="fw-normal mb-0"> Donation</h6>
                   </div>
                   <div class="user-progress d-flex align-items-center gap-2">
                     <h6 class="fw-normal mb-0"><?php echo $total_amt_card ?? '0' ?></h6>

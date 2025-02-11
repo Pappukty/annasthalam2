@@ -51,7 +51,7 @@ if (!empty($_SESSION['admin_id'])) {
   class="light-style layout-menu-fixed layout-compact"
   dir="ltr"
   data-theme="theme-default"
-  data-assets-path="./assets/"
+  data-assets-path="./assets/img/logo.jpg"
   data-template="vertical-menu-template-free"
   data-style="light">
 
@@ -63,7 +63,7 @@ if (!empty($_SESSION['admin_id'])) {
 
   <title>Annasthalam</title>
 
-  <meta name="description" content="" />
+  <meta name="description" content="annasthalam" />
 
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="../assets/img/logo.jpg" />
@@ -331,7 +331,7 @@ if (!empty($_SESSION['admin_id'])) {
             </a>
             <ul class="menu-sub">
               <li class="menu-item">
-                <a href="pages-settings.html" class="menu-link">Settings</a>
+                <a href="setting.php" class="menu-link">Settings</a>
               </li>
 
 
@@ -339,7 +339,7 @@ if (!empty($_SESSION['admin_id'])) {
           </li>
 
           <li class="menu-item">
-            <a href="javascript:void(0);" class="menu-link menu-toggl">
+            <a href="profile.php" class="menu-link menu-toggl">
               <i class="bx bx-user bx-md me-3"></i> My Profile
             </a>
 
@@ -427,12 +427,12 @@ if (!empty($_SESSION['admin_id'])) {
                     <div class="dropdown-divider my-1"></div>
                   </li>
                   <li>
-                    <a class="dropdown-item" href="#">
+                    <a class="dropdown-item" href="profile.php">
                       <i class="bx bx-user bx-md me-3"></i><span>My Profile</span>
                     </a>
                   </li>
                   <li>
-                    <a class="dropdown-item" href="#"> <i class="bx bx-cog bx-md me-3"></i><span>Settings</span> </a>
+                    <a class="dropdown-item" href="setting.php"> <i class="bx bx-cog bx-md me-3"></i><span>Settings</span> </a>
                   </li>
                   <!-- <li>
                     <a class="dropdown-item" href="#">
