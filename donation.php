@@ -1,15 +1,22 @@
 <?php
-// donation.php
 require 'razorpay/Razorpay.php';
-
 use Razorpay\Api\Api;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
+error_reporting(2);
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
 
 include_once './app/class/databaseConn.php';
 
 $DatabaseCo = new DatabaseConn();
-// Fetch the data from the query string using $_GET
+
+// Fetch data from query string
 $meal = isset($_GET['meal']) ? $_GET['meal'] : 'Not specified';
 $date = isset($_GET['dates']) ? $_GET['dates'] : 'Not specified';
+
 // Razorpay credentials
 $keyId     = "rzp_test_geqUM0Pl34yBo6";
 $keySecret = "ar3OtUJd6ZRwDCvy5vWkcLI0";
@@ -19,92 +26,159 @@ $api = new Api($keyId, $keySecret);
 
 // Process POST requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  // Use "action" to differentiate between the two steps
-  $action = $_POST['action'] ?? '';
+    $action = $_POST['action'] ?? '';
 
-  // ─── STEP 1: Create Razorpay Order ─────────────────────────────
-  if ($action === 'create_order') {
-    $donationAmount = floatval($_POST['total_amount'] ?? 0);
-    if ($donationAmount <= 0) {
-      echo json_encode(["status" => "error", "message" => "Invalid donation amount"]);
-      exit;
-    }
-    try {
-      // Create an order in Razorpay
-      $orderData = [
-        'receipt'         => rand(1000, 9999),
-        'amount'          => $donationAmount * 100, // amount in paise
-        'currency'        => 'INR',
-        'payment_capture' => 1
-      ];
-      $razorpayOrder = $api->order->create($orderData);
-      $razorpayOrderId = $razorpayOrder['id'];
-
-      echo json_encode(["status" => "success", "order_id" => $razorpayOrderId]);
-    } catch (Exception $e) {
-      echo json_encode(["status" => "error", "message" => "Error creating order: " . $e->getMessage()]);
-    }
-    exit;
-  }
-  // ─── STEP 2: Complete Donation (insert all data) ────────────────
-  elseif ($action === 'complete_donation') {
-    // Get form fields (adjust names as needed)
-    $donorName     = trim($_POST['name'] ?? '');
-    $donorEvent    = trim($_POST['event'] ?? '');
-    $email         = trim($_POST['email'] ?? '');
-    $phone         = trim($_POST['phone'] ?? '');
-    $serviceDate   = trim($_POST['service_date'] ?? '');
-    $dob           = trim($_POST['dob'] ?? '');
-    $foodCount     = trim($_POST['meals_count'] ?? '');
-    $donationAmount = floatval($_POST['total_amount'] ?? 0);
-    $comments      = trim($_POST['comments'] ?? '');
-    $razorpayOrderId = $_POST['order_id'] ?? '';
-    $paymentId     = $_POST['payment_id'] ?? '';
-
-    if (empty($razorpayOrderId) || empty($paymentId)) {
-      echo json_encode(["status" => "error", "message" => "Payment information missing"]);
-      exit;
+    // ─── STEP 1: Create Razorpay Order ─────────────────────────────
+    if ($action === 'create_order') {
+        $donationAmount = floatval($_POST['total_amount'] ?? 0);
+        if ($donationAmount <= 0) {
+            echo json_encode(["status" => "error", "message" => "Invalid donation amount"]);
+            exit;
+        }
+        try {
+            $orderData = [
+                'receipt'         => rand(1000, 9999),
+                'amount'          => $donationAmount * 100, // amount in paise
+                'currency'        => 'INR',
+                'payment_capture' => 1
+            ];
+            $razorpayOrder = $api->order->create($orderData);
+            echo json_encode(["status" => "success", "order_id" => $razorpayOrder['id']]);
+        } catch (Exception $e) {
+            echo json_encode(["status" => "error", "message" => "Error creating order: " . $e->getMessage()]);
+        }
+        exit;
     }
 
-    // Fetch payment details from Razorpay to get the payment method
-    $payment = $api->payment->fetch($paymentId);
-    // The payment object includes a 'method' property:
-    $paymentMethod = $payment->method;
+    // ─── STEP 2: Complete Donation ─────────────────────────────
+    elseif ($action === 'complete_donation') {
+        // Get form fields
+        $donorName     = trim($_POST['name'] ?? '');
+        $donorEvent    = trim($_POST['event'] ?? '');
+        $email         = trim($_POST['email'] ?? '');
+        $phone         = trim($_POST['phone'] ?? '');
+        $serviceDate   = trim($_POST['service_date'] ?? '');
+        $dob           = trim($_POST['dob'] ?? '');
+        $foodCount     = trim($_POST['meals_count'] ?? '');
+        $donationAmount = floatval($_POST['total_amount'] ?? 0);
+        $comments      = trim($_POST['comments'] ?? '');
+        $razorpayOrderId = $_POST['order_id'] ?? '';
+        $paymentId     = $_POST['payment_id'] ?? '';
 
-    // Insert the donation record with status "completed"
-    $sql = "INSERT INTO donation 
-            (name, event, email, phone, service_date, dob, meals_count, total_amount, comments, status, payment_id, order_id, payment_method) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $DatabaseCo->dbLink->prepare($sql);
-    $status = "completed";
-    // Corrected bind_param type string: status is a string ("s") not an integer ("i")
-    // and using $paymentMethod (not $payment_method)
-    $stmt->bind_param(
-      "ssssssidsssss",
-      $donorName,
-      $donorEvent,
-      $email,
-      $phone,
-      $serviceDate,
-      $dob,
-      $foodCount,
-      $donationAmount,
-      $comments,
-      $status,
-      $paymentId,
-      $razorpayOrderId,
-      $paymentMethod
-    );
-    if ($stmt->execute()) {
-      echo json_encode(["status" => "success", "message" => "Donation recorded successfully"]);
-    } else {
-      echo json_encode(["status" => "error", "message" => "Database error: " . $stmt->error]);
+        if (empty($razorpayOrderId) || empty($paymentId)) {
+            echo json_encode(["status" => "error", "message" => "Payment information missing"]);
+            exit;
+        }
+
+        // Fetch payment details
+        $payment = $api->payment->fetch($paymentId);
+        $paymentMethod = $payment->method;
+
+        // Insert donation into database
+        $sql = "INSERT INTO donation 
+                (name, event, email, phone, service_date, dob, meals_count, total_amount, comments, status, payment_id, order_id, payment_method) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $DatabaseCo->dbLink->prepare($sql);
+        $status = "completed";
+
+        $stmt->bind_param(
+            "ssssssidsssss",
+            $donorName,
+            $donorEvent,
+            $email,
+            $phone,
+            $serviceDate,
+            $dob,
+            $foodCount,
+            $donationAmount,
+            $comments,
+            $status,
+            $paymentId,
+            $razorpayOrderId,
+            $paymentMethod
+        );
+
+        if ($stmt->execute()) {
+            $response = ["status" => "success", "message" => "Donation recorded successfully"];
+
+            // Send Email Invoice
+            if (sendInvoiceEmail($donorName, $email, $donationAmount, $serviceDate, $paymentMethod)) {
+                $response["email"] = "Donation receipt sent successfully!";
+            } else {
+                $response["email_status"] = "Failed to send receipt.";
+            }
+
+            echo json_encode($response);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Database error: " . $stmt->error]);
+        }
+
+        $stmt->close();
+        exit;
     }
-    $stmt->close();
-    exit;
+}
+
+// ─── FUNCTION TO SEND EMAIL ───────────────────────────
+function sendInvoiceEmail($donorName, $email, $donationAmount, $serviceDate, $paymentMethod) {
+  $mail = new PHPMailer(true);
+
+  try {
+      // SMTP Server Settings (Gmail)
+      $mail->isSMTP();
+      $mail->SMTPDebug  = 0; // Change to 2 for debugging
+      $mail->Host       = 'smtp.gmail.com';
+      $mail->SMTPAuth   = true;
+      $mail->Username   = 'sukuappdev@gmail.com';
+      $mail->Password   = 'xachpebwrcpcleun'; // Use App Password
+      $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+      $mail->Port       = 587; // Use 587 for TLS
+
+      // Email Headers
+      $mail->setFrom('sukuappdev@gmail.com', 'Donation Team');
+      $mail->addAddress($email, $donorName); // Recipient
+
+      // Email Subject & Body
+      $mail->isHTML(true);
+      $mail->Subject = "Donation Invoice - Thank You!";
+      $mail->Body    = "
+      <html>
+      <head>
+          <title>Donation Receipt</title>
+          <style>
+              body { font-family: Arial, sans-serif; }
+              .container { width: 80%; margin: auto; padding: 20px; border: 1px solid #ddd; }
+              h2 { color: #28a745; }
+              p { font-size: 16px; }
+          </style>
+      </head>
+      <body>
+          <div class='container'>
+              <h2>Donation Receipt</h2>
+              <p><strong>Name:</strong> $donorName</p>
+              <p><strong>Email:</strong> $email</p>
+              <p><strong>Donation Amount:</strong> ₹$donationAmount</p>
+              <p><strong>Service Date:</strong> $serviceDate</p>
+              <p><strong>Payment Method:</strong> $paymentMethod</p>
+              <p>Thank you for your generous donation!</p>
+          </div>
+      </body>
+      </html>
+";
+
+      if ($mail->send()) {
+          return true;
+      } else {
+          error_log("Mailer Error: " . $mail->ErrorInfo);
+          return false;
+      }
+  } catch (Exception $e) {
+      error_log("PHPMailer Exception: " . $e->getMessage());
+      return false;
   }
 }
+
 ?>
+
 
 
 
@@ -583,11 +657,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="donorEvent" class="form-label">Donor Event *</label>
                 <select class="form-select p-3" id="donorEvent" name="event" required>
                   <option value="">Select Event</option>
-                  <option value="food_drive">Food Drive 2025</option>
-                  <option value="winter_clothes">Winter Clothes Donation</option>
-                  <option value="school_supplies">Back-to-School Supplies Campaign</option>
-                  <option value="community_feeding">Community Feeding Program</option>
-                  <option value="medical_aid">Medical Aid Fundraiser</option>
+                  <option value="food drive">Food Drive 2025</option>
+                  <option value="winter clothes">Winter Clothes Donation</option>
+                  <option value="school supplies">Back-to-School Supplies Campaign</option>
+                  <option value="community feeding">Community Feeding Program</option>
+                  <option value="medical aid">Medical Aid Fundraiser</option>
                 </select>
               </div>
 
@@ -793,94 +867,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Intercept the form submission
     document.getElementById('donationForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const form = e.target;
-      let formData = new FormData(form);
-      // Save form data globally to use later in the payment success handler
-      formDataGlobal = formData;
-      // Append an action flag for order creation
-      formData.append("action", "create_order");
+        e.preventDefault();
+        const form = e.target;
+        let formData = new FormData(form);
+        // Save form data globally to use later in the payment success handler
+        formDataGlobal = formData;
+        // Append an action flag for order creation
+        formData.append("action", "create_order");
 
-      // Step 1: Create Razorpay order by sending form data via AJAX
-      fetch('donation.php', {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.status === "success") {
-            console.log(data);
-            let orderId = data.order_id;
-            // Save the payment method (if provided by your server)
-            paymentMethod = data.method;
-            console.log("Payment method from server:", paymentMethod);
+        // Step 1: Create Razorpay order by sending form data via AJAX
+        fetch('donation.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    let orderId = data.order_id;
+                    paymentMethod = data.method;
 
-            // Step 2: Open Razorpay Checkout with the order id and donation amount
-            let options = {
-              "key": "<?php echo $keyId; ?>", // Your Razorpay Key ID
-              "name": "Annasthalam",
-              "image": "./image/logo.jpg",
-              "order_id": orderId,
-              "handler": function(response) {
-                // Payment was successful – now send the complete donation data to the server
-                let completeData = new FormData();
-                completeData.append("action", "complete_donation");
-                // Append all form fields from the previously saved formDataGlobal
-                for (let pair of formDataGlobal.entries()) {
-                  if (pair[0] !== "action") {
-                    completeData.append(pair[0], pair[1]);
-                  }
+                    let options = {
+                        "key": "<?php echo $keyId; ?>", 
+                        "name": "Annasthalam",
+                        "image": "./image/logo.jpg",
+                        "order_id": orderId,
+                        "handler": function(response) {
+                            let completeData = new FormData();
+                            completeData.append("action", "complete_donation");
+                            for (let pair of formDataGlobal.entries()) {
+                                if (pair[0] !== "action") {
+                                    completeData.append(pair[0], pair[1]);
+                                }
+                            }
+                            completeData.append("order_id", orderId);
+                            completeData.append("payment_id", response.razorpay_payment_id);
+                            completeData.append("payment_method", paymentMethod);
+
+                            fetch('donation.php', {
+                                    method: 'POST',
+                                    body: completeData
+                                })
+                                .then(resp => resp.json())
+                                .then(respData => {
+                                    if (respData.status === "success") {
+                                        toastr.options = {
+                                            closeButton: true,
+                                            progressBar: true,
+                                            showMethod: 'fadeIn',
+                                            hideMethod: 'fadeOut',
+                                            timeOut: 2000,
+                                        };
+
+                                        toastr.success('Payment successful!');
+
+                                        setTimeout(function() {
+                                            location.reload(); // Reload after 2 seconds
+                                        }, 2000); 
+                                    } else {
+                                        alert("Error: " + respData.message);
+                                    }
+                                })
+                                .catch(error => console.error("Error:", error));
+                        },
+                        "theme": {
+                            "color": "#2ac5f1"
+                        }
+                    };
+                    var rzp = new Razorpay(options);
+                    rzp.open();
+                } else {
+                    alert("Error: " + data.message);
                 }
-                // Append payment details from Razorpay
-                completeData.append("order_id", orderId);
-                completeData.append("payment_id", response.razorpay_payment_id);
-                // Append payment method as well
-                completeData.append("payment_method", paymentMethod);
-
-                // Step 3: Complete donation and insert all data into the database
-                fetch('donation.php', {
-                    method: 'POST',
-                    body: completeData
-                  })
-                  .then(resp => resp.json())
-                  .then(respData => {
-                    if (respData.status === "success") {
-                      toastr.options = {
-            closeButton: true,
-            progressBar: true,
-            showMethod: 'fadeIn', // A valid animation method
-            hideMethod: 'fadeOut',
-            timeOut: 5000, // 5 seconds duration
-          };
-
-          toastr.success('Payment successful!');
-           // Delay reload until toast fully disappears
-           setTimeout(function() {
-            location.reload();
-          }, 5000); // Wait 5 seconds before reloading
-
-
-                      // alert("Donation recorded successfully!");
-                      // Optionally, reset the form or redirect the user
-                    } else {
-                      alert("Error: " + respData.message);
-                    }
-                  })
-                  .catch(error => console.error("Error:", error));
-              },
-              "theme": {
-                "color": "#2ac5f1"
-              }
-            };
-            var rzp = new Razorpay(options);
-            rzp.open();
-          } else {
-            alert("Error: " + data.message);
-          }
-        })
-        .catch(error => console.error("Error:", error));
+            })
+            .catch(error => console.error("Error:", error));
     });
-  </script>
+</script>
 
 
  
