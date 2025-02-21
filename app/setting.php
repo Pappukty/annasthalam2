@@ -1,9 +1,11 @@
-<?php
+<?php 
+
 include_once './include/header.php';
 // ini_set('display_errors', 0);
 // ini_set('display_startup_errors', 1);
 error_reporting(1);
 // Initialize database connection and XSS cleaner
+session_start();
 
 
 // Fetch existing data to prepopulate the form
@@ -14,6 +16,8 @@ $data = $result->fetch_assoc();
 ?>
 
 
+  <!-- Toastr CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
 
 
 
@@ -123,54 +127,73 @@ $data = $result->fetch_assoc();
 include_once './include/footer.php';
 
 ?>
-
+<!-- toaster -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $('#add_form').submit(function(event) {
-            event.preventDefault(); // Prevent the form from submitting normally
+$(document).ready(function() {
+    $('#add_form').submit(function(event) {
+        event.preventDefault(); // Prevent normal form submission
 
-            // Collect form data
-            var formData = {
-                _token: $('meta[name="csrf-token"]').attr('content'), // CSRF token, if using Laravel
-                email: $('#email').val(),
-                phone_number: $('#phone_number').val(),
-                address: $('#address').val(),
-                fb_link: $('#fb_link').val(),
-                instagram: $('#instagram').val(),
+        // Collect form data
+        var formData = {
+            _token: $('meta[name="csrf-token"]').attr('content'), // CSRF token (for Laravel)
+            email: $('#email').val(),
+            phone_number: $('#phone_number').val(),
+            address: $('#address').val(),
+            fb_link: $('#fb_link').val(),
+            instagram: $('#instagram').val(),
+        };
 
-            };
+        console.log("Submitting Form Data:", formData);
 
-            console.log("Form Data Submitted:", formData);
+        // Send AJAX request
+        $.ajax({
+            url: 'business_process.php', // PHP script URL
+            method: 'POST',
+            data: formData,
+            dataType: 'json', // Expecting JSON response
+            success: function(response) {
+                console.log("Server Response:", response);
 
-            // Send AJAX request
-            $.ajax({
-                url: 'business_process.php', // Path to your PHP script
-                method: 'POST',
-                data: formData,
-                dataType: 'json', // Expecting a JSON response from the server
-                success: function(response) {
-                    console.log("Server Response:", response);
+                // Configure Toastr options
+                toastr.options = {
+                    closeButton: true,
+                    progressBar: true,
+                    showMethod: 'fadeIn',
+                    hideMethod: 'fadeOut',
+                    timeOut: 2000, // Show message for 2 seconds
+                };
 
-                    if (response.data) {
-                        // Handle success
-                        // alert(response.message); // Show success message
-
-                        // Reload the page to reflect changes
-                        window.location.reload(); // This will reload the current page
-                    } else {
-                        // Handle failure
-
-                    }
-                },
-                error: function(xhr, status, error) {
-                    // Handle AJAX errors
-                    window.location.reload();
-                    // console.log("XHR Response:", xhr.responseText);
-
+                if (response.success) {
+                    toastr.success(response.message);
+                    // Reload page after 2.5 seconds
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 2500);
+                } else if (response.message) {
+                    toastr.error(response.message);
                 }
-            });
+            },
+            error: function(xhr, status, error) {
+                console.log("XHR Error:", xhr.responseText);
+
+                // Configure Toastr error notification
+                toastr.options = {
+                    closeButton: true,
+                    progressBar: true,
+                    showMethod: 'fadeIn',
+                    hideMethod: 'fadeOut',
+                    timeOut: 3000, // Show error for 3 seconds
+                };
+
+                toastr.error("An unexpected error occurred. Please try again!");
+            }
         });
     });
+});
+
+
+
 </script>

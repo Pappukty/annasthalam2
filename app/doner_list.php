@@ -143,7 +143,7 @@ if (isset($_POST['delete_now'])) {
                             $status = strtolower($Row->status); // Convert to lowercase for consistency
                             if ($status == 'completed') {
                                 echo '<span class="badge bg-success">Completed</span>';
-                            } elseif ($status == 'pending') {
+                            } elseif ($status == 'process') {
                                 echo '<span class="badge bg-warning text-dark">Pending</span>';
                             } elseif ($status == 'failed') {
                                 echo '<span class="badge bg-danger">Failed</span>';

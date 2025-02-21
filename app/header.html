@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Header Design</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <style>
+      .top-bar {
+        background: #006cbe;
+        color: white;
+        padding: 18px 0;
+        font-size: 19px;
+      }
+      .top-bar a {
+        color: white;
+        text-decoration: none;
+        margin-right: 15px;
+      }
+      .header-logo img {
+        height: 50px;
+      }
+      .navbar-nav .nav-item {
+        padding: 0 10px;
+      }
+      .nav-link {
+        color: black;
+        font-weight: 500;
+      }
+      .new-badge {
+        background: #00c09d;
+        color: white;
+        font-size: 12px;
+        padding: 2px 5px;
+        border-radius: 3px;
+        margin-left: 5px;
+      }
+      .btn-member {
+        font-size: 14px;
+        font-weight: bold;
+        line-height: 1em;
+        letter-spacing: 1px;
+        color: #ffffff;
+        border-radius: 30px;
+        box-shadow: 0px 0px 0px 0px rgb(0 0 0 / 10%);
+        padding: 12px 25px 12px 25px;
+        border-radius: 25px;
+        background-color: transparent;
+        background-image: linear-gradient(180deg, #0e336a 0%, #164996 100%);
+      }
+      .carousel-item {
+        height: 300px;
+        background: #ddd;
+        color: black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: bold;
+      }
+      .navbar-toggler {
+        order: 1;
+        border: none;
+        outline: none;
+      }
+      .navbar-collapse {
+        order: 2;
+        justify-content: flex-end;
+      }
+      .navbar-nav {
+      }
+      .carousel {
+        background-image: url(../image/imges17.webp);
+      }
+      .nav-link {
+        padding: 0px 7px;
+        font-size: 16px;
+        font-weight: normal;
+        line-height: 1em;
+        letter-spacing: 1px;
+        color: #000000;
+      }
+      /* Mobile-specific styles */
+      @media (max-width: 991px) {
+        .navbar-collapse {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          background: black;
+          z-index: 1000;
+          padding: 10px 0;
+        }
+        .navbar-nav .nav-link {
+          color: white !important;
+          font-size: 24px;
+        }
+        .navbar-toggler-icon {
+          background-image: none;
+          font-size: 24px;
+          color: white;
+        }
+      }
+      .collapse {
+        padding: 30px 0px;
+        /* filter: brightness(100%) contrast(100%) saturate(0%) blur(0px) hue-rotate(0deg); */
+      }
+    </style>
+    <style>
+      /* Dropdown Menu */
+      .dropdown-menu {
+        background: rgba(0, 0, 0, 0.8); /* Semi-transparent black */
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+      }
+
+      .dropdown-item {
+        color: white;
+        font-size: 16px;
+        padding: 10px;
+        transition: background 0.3s ease;
+      }
+
+      .dropdown-item:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      /* Navbar Transparency */
+      .navbar {
+        background: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+        transition: background 0.3s ease-in-out;
+      }
+
+      .navbar:hover {
+        background: rgba(255, 255, 255, 1); /* Full opacity on hover */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar d-flex justify-content-between px-4">
+      <div>
+        <a href="#"><i class="fa fa-user"></i> Become Member</a>
+        <a href="#"><i class="fa fa-map-marker-alt"></i> Get Direction</a>
+      </div>
+      <div>
+        <a href="mailto:info@chandransyuva.com"
+          ><i class="fa fa-envelope"></i> info@chandransyuva.com</a
+        >
+        <a href="tel:+919442624016"
+          ><i class="fa fa-phone"></i> +919442624016</a
+        >
+      </div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+      <a
+        class="navbar-brand header-logo d-flex justify-content-start align-items-start ms-4"
+        href="#"
+      >
+        <img src="../image/imges1.webp" alt="Logo" />
+      </a>
+      <div class="container">
+        <a href="#" class="btn btn-member d-lg-none d-sm-block"
+          >Become ISR Member</a
+        >
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <i class="fa fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Causes</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="#"
+                >About <span class="new-badge">NEW</span></a
+              >
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="yearbookDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                Year Book
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">2017 – 2018</a></li>
+                <li><a class="dropdown-item" href="#">2018 – 2019</a></li>
+                <li><a class="dropdown-item" href="#">2019 – 2020</a></li>
+                <li><a class="dropdown-item" href="#">2020 – 2021</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="NewsletterDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+              >
+                Newsletter
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">2021 – May</a></li>
+                <li><a class="dropdown-item" href="#">2021 – september</a></li>
+                <li><a class="dropdown-item" href="#">2022 – March</a></li>
+                <li><a class="dropdown-item" href="#">2022 – Autg-Out</a></li>
+              </ul>
+            </li>
+
+            <li class="nav-item"><a class="nav-link" href="#">Blog</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="#"
+                >Gallery <span class="new-badge">NEW</span></a
+              >
+            </li>
+            <li class="nav-item"><a class="nav-link" href="#">Events</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+          </ul>
+          <a href="#" class="btn btn-member d-none d-lg-block"
+            >Become ISR Member</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <div id="textCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        <div class="carousel-item active">Welcome to YUVA Foundation</div>
+        <div class="carousel-item">Join us to make a difference</div>
+        <div class="carousel-item">Support and help those in need</div>
+      </div>
+    </div>
+    <!-- footer -->\
+
+    <style>
+      .footer {
+        background: #002147;
+        color: white;
+        padding: 40px 0;
+      }
+      .footer a {
+        color: white;
+        text-decoration: none;
+      }
+      /* .footer-logo{
+        width: 100px;
+        height: 100px;
+      } */
+      .footer a:hover {
+        text-decoration: underline;
+      }
+      .newsletter input {
+        width: 70%;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+      }
+      .newsletter button {
+        padding: 10px 20px;
+        background: #00d084;
+        color: white;
+        border: none;
+        border-radius: 5px;
+      }
+      .social-icons a {
+        margin: 0 10px;
+        font-size: 24px;
+      }
+      .supporters img {
+        width: 100px;
+        height: 100px;
+        margin: 5px;
+      }
+      .footer-content{
+        font-weight: normal;
+    font-size: 14px;
+    line-height: 2em;
+    letter-spacing: 1px;
+
+
+      }
+.list-unstyled{
+  display: flex
+;
+    min-height: 1px;
+    position: relative;
+    gap: 2rem;
+}
+.list-unstyled li{
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.newsletter input{
+  text-align: left;
+    width: 100%;
+    color: #A4A4A4 !important;
+    background-color: #FFFFFF21;
+    border-width: 0px 0px 0px 0px;
+    border-radius: 0px;
+    padding: 10px 20px;
+}
+.newsletter button{
+  background-color: #00baa3;
+    border-width: 1px;
+    border-color: #00baa3;
+    border-radius: 30px;
+    border-style: solid;
+    padding: 10px 30px;
+    margin-left: 30px;
+    -webkit-appearance: none;
+    color: #ffffff;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+}
+.copy{
+  color: #164A9A;
+    font-size: inherit;
+    font-weight: 700;
+    line-height: inherit;
+}
+    </style>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="row ">
+          <div class="col-md-6 text-start">
+            <img
+              src="../image/footer-logo.png"
+              alt="Logo"
+     
+              class="footer-logo"
+              width="290px";
+              height="100px";
+            />
+           
+          </div>
+     
+          <div class="col-md-6 text-start">
+            <h5>OUR SUPPORTERS</h5>
+            <div class="supporters d-flex justify-content-center">
+              <img src="../image/img-com1.png" alt="Karpagam University" />
+              <img src="../image/img-com2.png" alt="Sri Krishna Institutions" />
+              <img src="../image/img-com3.png" alt="Sankara Institutions" />
+              <img src="../image/img-com4.png" alt="SSVM World School" />
+              <img src="../image/img-com5.png" alt="Charity Foundation" />
+              <img src="../image/img-com6.png" alt="Rathinam Group" />
+            </div>
+          </div>
+          <div class="col-md-6 text-start">
+           
+            <p class="footer-content">
+              Charity is not just an action; it's a shared commitment to
+              uplifting those in need, creating a symphony of hope that
+              resonates across every corner of our global community.
+            </p>
+            <ul class="list-unstyled ">
+              <div class="footer-list">
+                  <li>🔵 Choose your favourite cause</li>
+                  <li>🔴 Be a part of our cause</li>
+              </div>
+              <div class="footer-list">
+                  <li>🟡 Register to our website!</li>
+                  <li>🟢 Stay tuned about cause</li>
+              </div>
+          </ul>
+          
+          </div>
+          <div class="col-md-6 text-start mt-4">
+            <h5>NEWSLETTER</h5>
+            <div class="newsletter d-flex justify-content-start">
+              <input type="email" placeholder="Email" class="w-50" />
+              <button class="send ">SEND</button>
+            </div>
+          </div>
+
+        </div>
+        
+     
+      </div>
+     
+    </footer>
+   
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center text-center py-3" style="background-color: #E7E7E7;
+    ;">
+      
+        <div class="ms-5">
+          <p class="mb-0 copy">
+              Chandrans Yuva Foundation &copy; 2017 - 2024. Powered by Limitless 360
+          </p>
+      </div>
+      <div class="social-icons mt-2 mt-md-0 me-5">
+          <a href="#" class="me-3"><i class="fab fa-facebook"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+      </div>
+   
+    
+  </div>
+  
+   
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const toggler = document.querySelector(".navbar-toggler");
+        const icon = toggler.querySelector("i");
+
+        toggler.addEventListener("click", function () {
+          if (icon.classList.contains("fa-bars")) {
+            icon.classList.remove("fa-bars");
+            icon.classList.add("fa-times");
+          } else {
+            icon.classList.remove("fa-times");
+            icon.classList.add("fa-bars");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Infinite Scroll with iframe</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+      }
+      #contentFrame {
+        width: 80%;
+        height: 500px;
+        border: 1px solid #ddd;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Infinite Scroll inside iframe</h2>
+
+    <iframe id="contentFrame" src="iframe_content.php" scrolling="no"
+      >rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr</iframe
+    ><iframe
+    id="inlineFrameExample"
+    title="Inline Frame Example"
+    width="300"
+    height="200"
+    src="https://www.openstreetmap.org/export/embed.html?bbox=-0.004017949104309083%2C51.47612752641776%2C0.00030577182769775396%2C51.478569861898606&layer=mapnik">
+  </iframe>
+  
+
+    <script>
+      let iframe = document.getElementById("contentFrame");
+
+      function adjustIframeHeight() {
+        iframe.style.height =
+          iframe.contentWindow.document.body.scrollHeight + "px";
+      }
+
+      iframe.onload = function () {
+        adjustIframeHeight();
+
+        // Detect when iframe reaches the bottom
+        iframe.contentWindow.onscroll = function () {
+          let scrollTop =
+            iframe.contentWindow.document.documentElement.scrollTop ||
+            iframe.contentWindow.document.body.scrollTop;
+          let scrollHeight =
+            iframe.contentWindow.document.documentElement.scrollHeight ||
+            iframe.contentWindow.document.body.scrollHeight;
+          let clientHeight =
+            iframe.contentWindow.document.documentElement.clientHeight;
+
+          if (scrollTop + clientHeight >= scrollHeight - 50) {
+            loadMoreContent();
+          }
+        };
+      };
+
+      function loadMoreContent() {
+        let iframeDoc = iframe.contentWindow.document;
+        let xhr = new XMLHttpRequest();
+        xhr.open(
+          "GET",
+          "iframe_content.php?page=" +
+            (iframeDoc.querySelectorAll(".item").length / 5 + 1),
+          true
+        );
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            let newContent = document.createElement("div");
+            newContent.innerHTML = xhr.responseText;
+            iframeDoc.body.appendChild(newContent);
+            adjustIframeHeight();
+          }
+        };
+        xhr.send();
+      }
+    </script>
+  </body>
+</html>

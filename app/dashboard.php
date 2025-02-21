@@ -74,21 +74,40 @@ $daily_progress_color = $daily_progress >= 100 ? 'text-success' : 'text-danger';
 
 // Total Transaction Amount:
 
-// Get today's total donation amount (service_date is assumed to be the correct column)
-$total_amount_today = $DatabaseCo->dbLink->query("SELECT SUM(total_amount) FROM donation WHERE DATE(service_date) = CURDATE()");
-$total_amt_today = $total_amount_today->fetch_array()[0] ?? 0;
 
-// Target amount for today (10,000)
+// Get today's total donation amount
+
+
+// Get today's total donation amount based on the correct date filter
+$total_amount_today_query = $DatabaseCo->dbLink->query("
+    SELECT SUM(total_amount) AS total_amount, COUNT(*) AS donation_count 
+    FROM donation 
+    WHERE DATE(service_date) = DATE(NOW()) 
+");
+
+// Fetch results
+$total_data_today = $total_amount_today_query->fetch_assoc();
+$total_amt_today = $total_data_today['total_amount'] ?? 0;
+$total_donation_count_today = $total_data_today['donation_count'] ?? 0;
+
+// Target amount for today
 $target_amount = 10000;
 
-// Calculate the percentage change from the target amount
-$percentage_change_from_target = $target_amount != 0 ? (($total_amt_today - $target_amount) / $target_amount) * 100 : 0;
-
-// Format the percentage change to 2 decimal places
+// Calculate percentage progress
+$percentage_change_from_target = ($total_amt_today / $target_amount) * 100;
 $percentage_change_formatted_from_target = number_format($percentage_change_from_target, 2);
 
-// Determine color based on percentage change (green for positive, red for negative)
-$color_class_today = $percentage_change_from_target < 0 ? 'text-danger' : 'text-success'; // Red for decrease, Green for increase
+// Determine color class based on the target
+$color_class_today = $total_amt_today < $target_amount ? 'text-danger' : 'text-success';
+
+
+// Display donation amount and percentage change
+// echo "<h3>Today's Donation: <strong>₹" . number_format($total_amt_today, 2) . "</strong></h3>";
+// echo "<p class='$color_class_today'>Change from Target: $percentage_change_formatted_from_target%</p>";
+
+
+
+
 
 
 
@@ -161,7 +180,7 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
                 <div class="avatar flex-shrink-0">
                   <img src="./assets/img/icons/unicons/chart-success.png" alt="chart success" class="rounded" />
                 </div>
-                <div class="dropdown">
+                <!-- <div class="dropdown">
                   <button class="btn p-0" type="button" id="cardOpt3" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="bx bx-dots-vertical-rounded text-muted"></i>
                   </button>
@@ -169,7 +188,7 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
                     <a class="dropdown-item" href="javascript:void(0);">View More</a>
                     <a class="dropdown-item" href="javascript:void(0);">Delete</a>
                   </div>
-                </div>
+                </div> -->
               </div>
 
               <!-- Total Donors -->
@@ -195,7 +214,7 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
                     alt="wallet info"
                     class="rounded" />
                 </div>
-                <div class="dropdown">
+                <!-- <div class="dropdown">
                   <button
                     class="btn p-0"
                     type="button"
@@ -209,7 +228,7 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
                     <a class="dropdown-item" href="javascript:void(0);">View More</a>
                     <a class="dropdown-item" href="javascript:void(0);">Delete</a>
                   </div>
-                </div>
+                </div> -->
               </div>
               <p class="mb-1">Today Donation</p>
               <h4 class="card-title mb-3"><?php echo $today_donations; ?></h4>
@@ -224,7 +243,7 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
                 <div class="avatar flex-shrink-0">
                   <img src="./assets/img/icons/unicons/upi.png" alt="paypal" class="rounded" />
                 </div>
-                <div class="dropdown">
+                <!-- <div class="dropdown">
                   <button
                     class="btn p-0"
                     type="button"
@@ -238,7 +257,7 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
                     <a class="dropdown-item" href="javascript:void(0);">View More</a>
                     <a class="dropdown-item" href="javascript:void(0);">Delete</a>
                   </div>
-                </div>
+                </div> -->
               </div>
               <p class="mb-1">Payments</p>
               <h4 class="card-title mb-3">₹<?php echo number_format($total_amt, 2); ?></h4>
@@ -259,7 +278,7 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
                 <div class="avatar flex-shrink-0">
                   <img src="./assets/img/icons/unicons/cc-primary.png" alt="Credit Card" class="rounded" />
                 </div>
-                <div class="dropdown">
+                <!-- <div class="dropdown">
                   <button
                     class="btn p-0"
                     type="button"
@@ -273,10 +292,10 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
                     <a class="dropdown-item" href="javascript:void(0);">View More</a>
                     <a class="dropdown-item" href="javascript:void(0);">Delete</a>
                   </div>
-                </div>
+                </div> -->
               </div>
               <p class="mb-1">Transactions Today</p>
-              <h4 class="card-title mb-3">₹<?php echo number_format($total_amt_today, 2); ?></h4>
+              <h4 class="card-title mb-3">₹<?php echo number_format($total_amt_today); ?></h4>
 
               <!-- Percentage Change Display -->
               <small class="<?php echo $color_class_today; ?> fw-medium">
@@ -299,7 +318,7 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
         <div class="card h-100">
           <div class="card-header d-flex align-items-center justify-content-between">
             <h5 class="card-title m-0 me-2">Transactions</h5>
-            <div class="dropdown">
+            <!-- <div class="dropdown">
               <button
                 class="btn text-muted p-0"
                 type="button"
@@ -314,7 +333,7 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
                 <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
                 <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
               </div>
-            </div>
+            </div> -->
           </div>
           <div class="card-body pt-4">
             <ul class="p-0 m-0">
@@ -349,7 +368,7 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
                   </div>
                 </div>
               </li>
-              <li class="d-flex align-items-center mb-6">
+              <!-- <li class="d-flex align-items-center mb-6">
                 <div class="avatar flex-shrink-0 me-3">
                   <img src="./assets/img/icons/unicons/chart.png" alt="User" class="rounded" />
                 </div>
@@ -363,7 +382,7 @@ $total_amt_card = $total_amount_card->fetch_array()[0] ?? 0;
                     <span class="text-muted">INA</span>
                   </div>
                 </div>
-              </li>
+              </li> -->
               <li class="d-flex align-items-center mb-6">
                 <div class="avatar flex-shrink-0 me-3">
                   <img src="./assets/img/icons/unicons/cc-primary.png" alt="User" class="rounded" />

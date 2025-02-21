@@ -66,7 +66,7 @@ if (!empty($_SESSION['admin_id'])) {
   <meta name="description" content="annasthalam" />
 
   <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="../assets/img/logo.jpg" />
+  <link rel="icon" type="image/x-icon" href="assets/img/logo.jpg" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -95,7 +95,7 @@ if (!empty($_SESSION['admin_id'])) {
   <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
   <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
   <script src="./assets/js/config.js"></script>
-
+ 
   <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
   <link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
 
@@ -186,7 +186,7 @@ if (!empty($_SESSION['admin_id'])) {
             <a href="dashboard.php" class="menu-link menu-">
               <i class="menu-icon tf-icons bx bx-home-smile"></i>
               <div class="text-truncate" data-i18n="Dashboards">Dashboards</div>
-              <span class="badge rounded-pill bg-danger ms-auto">5</span>
+              <!-- <span class="badge rounded-pill bg-danger ms-auto">5</span> -->
             </a>
             <!-- <ul class="menu-sub">
                 <li class="menu-item active">
@@ -296,8 +296,12 @@ if (!empty($_SESSION['admin_id'])) {
           </li>
           <li class="menu-item">
           <a href="javascript:void(0);" class="menu-link menu-toggle">
-          <i class="menu-icon tf-icons bx bx-image"></i> Poster
+    <i class="menu-icon tf-icons bx bx-landscape"></i> Poster
 </a>
+
+
+
+
 
 
 
@@ -317,10 +321,17 @@ if (!empty($_SESSION['admin_id'])) {
             </ul>
           </li>
 
+          <li class="menu-item">
+            <a href="counter_List.php" class="menu-link menu-toggl">
+            <i class="bx bx-list-ol bx-md me-3"></i>
 
 
 
+Count
+            </a>
 
+
+          </li>
 
 
           <!-- Components -->

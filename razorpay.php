@@ -6,11 +6,12 @@
 <?php
   
 
+  $keyId     = "rzp_live_phdyxCDur7y7mB";
+  $keySecret = "QCnsNY9PEXkVLdL2YTfOn65I";
 
 
-
-$keyId = 'rzp_live_Jf3B5Ng9EkFH6l';
-$keySecret = 'M6Kh0C3QjbtfelIe5KON7oTQ';
+// $keyId = 'rzp_live_Jf3B5Ng9EkFH6l';
+// $keySecret = 'M6Kh0C3QjbtfelIe5KON7oTQ';
 $displayCurrency = 'INR';
 include('razorpay/Razorpay.php');
 

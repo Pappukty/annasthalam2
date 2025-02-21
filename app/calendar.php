@@ -13,6 +13,7 @@ if (mysqli_num_rows($result) > 0) {
         $dob = $row["dob"]; // Date of birth (YYYY-MM-DD)
         $name = $row["name"]; // Person's name
         $phone = $row["phone"]; // Phone number
+        $email = $row["email"]; // Phone number
 
         // Extract only Day and Month (format: 12.4.)
         $dobFormatted = date("d.m.Y", strtotime($dob));
@@ -28,6 +29,7 @@ if (mysqli_num_rows($result) > 0) {
             'start' => $dobThisYear, // Place it on the correct date
             'description' => "<strong>🎉 Happy Birthday " . $name . "!</strong><br>📅 Date: " . $dobFormatted . "<br>📞 Phone: " . $phone, // Content for popup
             'phone' => $phone, // Store phone separately
+            'email' => $email, // Store phone separately
             'allDay' => true // Full-day event
         );
     }
@@ -43,6 +45,7 @@ if (mysqli_num_rows($result) > 0) {
 <style>
     .fc-event-title {
         font-size: 18px !important;
+        cursor: pointer !important;
     }
 </style>
 <div class="content-wrapper">
@@ -68,8 +71,8 @@ if (mysqli_num_rows($result) > 0) {
 
                     </div>
                     <hr class="mb-6 mx-n4 mt-3" />
-                    <div class="px-6 pb-2">
-                        <!-- Filter -->
+                    <!-- <div class="px-6 pb-2">
+                   
                         <div>
                             <h5>Event Filters</h5>
                         </div>
@@ -101,7 +104,7 @@ if (mysqli_num_rows($result) > 0) {
                                 <label class="form-check-label" for="select-etc">ETC</label>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
                 </div>
                 <!-- /Calendar Sidebar -->

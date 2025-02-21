@@ -15,9 +15,9 @@ ini_set('display_errors', 1);
 $DatabaseCo = new DatabaseConn();
 
 // Razorpay API credentials
+
 $razorpayKey = "rzp_test_geqUM0Pl34yBo6";
 $keySecret = "ar3OtUJd6ZRwDCvy5vWkcLI0";
-
 // Retrieve and sanitize input data
 $donorName = trim($_POST['name'] ?? '');
 $donorEvent = trim($_POST['event'] ?? '');

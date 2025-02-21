@@ -134,7 +134,7 @@ if ($_REQUEST['id'] > 0) {
                                 <div class="col-6 mt-2">
                                     <div class="custom-file">
                                         <label for="photos" class="form-label">Image</label>
-                                        <input class="fileUp fileup-sm uploadlink"
+                                        <input class="form-control fileUp fileup-sm uploadlink"
                                             accept=".jpg, .png, image/jpeg, image/png"
                                             name="photos"
                                             type="file"
